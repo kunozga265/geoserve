@@ -29,7 +29,7 @@ class UserTableSeeder extends Seeder
            'firstName'      =>  'Gehazi',
            'middleName'     =>  null,
            'lastName'       =>  'Jenda',
-           'email'          =>  'kunozmlowoka@gmail.com',
+           'email'          =>  'gehazijenda@gmail.com',
            'position_id'    =>  7,
            'password'       =>  bcrypt('12345678'),
         ]);
