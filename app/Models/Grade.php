@@ -12,4 +12,10 @@ class Grade extends Model
     protected $fillable=[
         "title"
     ];
+
+    protected $hidden=[
+      "id",
+      "created_at",
+      "updated_at",
+    ];
 }

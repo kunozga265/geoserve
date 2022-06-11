@@ -17,14 +17,14 @@ class PositionTableSeeder extends Seeder
         Position::create([
             "title"             =>  "Managing Director",
             "grade_id"          =>  1,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Executive Assistant",
             "grade_id"          =>  4,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
@@ -32,28 +32,44 @@ class PositionTableSeeder extends Seeder
         Position::create([
             "title"             =>  "Finance and Compliance Executive",
             "grade_id"          =>  3,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Accounts and Stores Officer",
             "grade_id"          =>  4,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([
+                [
+                    "stage"     =>  1,
+                    "position"  =>  3,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
+            ]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Human Capital Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Security Team",
             "grade_id"          =>  5,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([
+                [
+                    "stage"     =>  1,
+                    "position"  =>  5,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
+            ]),
             "state"             =>  "Permanent",
         ]);
 
@@ -61,28 +77,28 @@ class PositionTableSeeder extends Seeder
         Position::create([
             "title"             =>  "Contracts Manager",
             "grade_id"          =>  2,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Technical Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Projects Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Operations and Business Development Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  null,
+            "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",
         ]);
 
@@ -92,10 +108,10 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  8,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ]
             ]),
             "state"             =>  "Permanent",
@@ -107,17 +123,17 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  11,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
                 [
                     "stage"     =>  2,
-                    "position"  =>  0,
+                    "position"  =>  8,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Permanent",
@@ -129,17 +145,17 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  11,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
                 [
                     "stage"     =>  2,
-                    "position"  =>  0,
+                    "position"  =>  8,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Permanent",
@@ -151,10 +167,10 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  8,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ]
             ]),
             "state"             =>  "Permanent",
@@ -166,17 +182,17 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  14,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
                 [
                     "stage"     =>  2,
-                    "position"  =>  0,
+                    "position"  =>  8,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Temporary",
@@ -188,10 +204,10 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  9,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Temporary",
@@ -203,17 +219,17 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  16,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
                 [
                     "stage"     =>  2,
-                    "position"  =>  0,
+                    "position"  =>  9,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Temporary",
@@ -225,10 +241,10 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  9,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Permanent",
@@ -240,17 +256,17 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  18,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
                 [
                     "stage"     =>  2,
-                    "position"  =>  0,
+                    "position"  =>  9,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Permanent",
@@ -262,10 +278,10 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  10,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Permanent",
@@ -277,10 +293,10 @@ class PositionTableSeeder extends Seeder
             "approvalStages"    =>  json_encode([
                 [
                     "stage"     =>  1,
-                    "position"  =>  0,
+                    "position"  =>  10,
                     "name"      =>  null,
                     "date"      =>  null,
-                    "status"    =>  null
+                    "status"    =>  false
                 ],
             ]),
             "state"             =>  "Permanent",

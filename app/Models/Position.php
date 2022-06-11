@@ -9,12 +9,24 @@ class Position extends Model
 {
     use HasFactory;
 
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class);
+    }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 
     protected $fillable=[
         "title",
         "grade_id",
         "approvalStages",
         "state",
+    ];
+
+    protected $hidden=[
+        "approvalStages"
     ];
 }

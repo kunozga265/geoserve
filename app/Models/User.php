@@ -17,15 +17,58 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class,'user_role','user_id','role_id');
     }
 
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+    public function requestForms()
+    {
+        return $this->hasMany(RequestForm::class);
+    }
+
+    public function approvedRequests()
+    {
+        return $this->belongsToMany(RequestForm::class,'requests_user','user_id','request_id');
+    }
+
+    public function hasAnyRole($roles)
+    {
+        if(is_array($roles)){
+            foreach ($roles as $role){
+                if($this->hasRole($role)){
+                    return true;
+                }
+            }
+        }else{
+            if($this->hasRole($roles)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasRole($role)
+    {
+        if($this->roles()->where('name',$role)->first()){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'firstName',
+        'middleName',
+        'lastName',
         'email',
         'password',
+        'verified',
+        'position_id',
     ];
 
     /**
@@ -34,8 +77,14 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
+        'email',
+        'position_id',
+        'email_verified_at',
         'password',
         'remember_token',
+        'created_at',
+        'updated_at',
     ];
 
     /**

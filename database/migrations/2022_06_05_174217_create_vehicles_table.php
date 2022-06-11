@@ -21,6 +21,7 @@ class CreateVehiclesTable extends Migration
             $table->double("lastRefillDate")->nullable();
             $table->double("lastRefillFuelReceived")->nullable();
             $table->double("lastRefillMileageCovered")->nullable();
+            $table->boolean("verified");
             $table->timestamps();
         });
     }

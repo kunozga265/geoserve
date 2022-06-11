@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PositionResource;
+use App\Models\Position;
 use Illuminate\Http\Request;
 
-class RequestController extends Controller
+class PositionController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        //
+        $positions= Position::orderBy('title','asc')->get();
+        return response()->json(PositionResource::collection($positions));
     }
 
     /**

@@ -16,19 +16,18 @@ class CreateRequestsTable extends Migration
         Schema::create('requests', function (Blueprint $table) {
             $table->id();
             $table->string("type");
+            $table->string("personCollectingAdvance")->nullable();
+            $table->string("project_id")->nullable();
 
-            $table->string("firstName");
-            $table->string("middleName")->nullable();
-            $table->string("lastName");
-            $table->integer("person_collecting_advance_id")->nullable();
-            $table->string("projectName")->nullable();
-            $table->string("projectClient")->nullable();
-            $table->string("projectSite")->nullable();
+            $table->json("remarks")->nullable();
+
             $table->json("information")->nullable();
+            $table->double("total")->nullable();
 
             //Person requesting
             $table->string("user_id");
             $table->double("dateRequested");
+            $table->double("editable");
 
             //Finance Department
             $table->double("dateInitiated")->nullable();
@@ -37,9 +36,10 @@ class CreateRequestsTable extends Migration
             //Management Approval
             $table->integer("approval_by_id")->nullable();
             $table->double("approvedDate")->nullable();
-            $table->boolean("approvalStatus");
+            $table->integer("approvalStatus");
 
             //Stages
+            $table->integer("stagesApprovalPosition")->nullable();
             $table->boolean("stagesApprovalStatus");
             $table->integer("currentStage")->nullable();
             $table->integer("totalStages")->nullable();
@@ -47,7 +47,7 @@ class CreateRequestsTable extends Migration
 
             //Vehicle Details
             $table->string("assessedBy")->nullable();
-            $table->string("vehicleRegistrationNumber")->nullable();
+            $table->integer("vehicle_id")->nullable();
             $table->string("driverName")->nullable();
             $table->double("fuelRequestedLitres")->nullable();
             $table->double("fuelRequestedMoney")->nullable();
@@ -57,6 +57,9 @@ class CreateRequestsTable extends Migration
             $table->double("lastRefillDate")->nullable();
             $table->double("lastRefillFuelReceived")->nullable();
             $table->double("lastRefillMileageCovered")->nullable();
+
+            $table->json("quotes")->nullable();
+            $table->json("receipts")->nullable();
 
             $table->timestamps();
         });
