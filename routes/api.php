@@ -39,6 +39,10 @@ Route::group(['prefix'=>'1.0.0'],function (){
         Route::group(['prefix'=>'users'],function (){
             Route::get("/",[UserController::class,'index']);
 
+            Route::get("/view/{id}",[
+                UserController::class,'show'
+            ]);
+
             Route::post("/verify/{id}",[
                 "uses" => "App\Http\Controllers\UserController@verify",
                 'roles' =>['management']
