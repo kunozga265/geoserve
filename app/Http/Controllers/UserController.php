@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Jobs\SendMail;
+use App\Mail\NewUser;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -73,6 +76,14 @@ class UserController extends Controller
         $user->roles()->attach($role);
 
         $token=$user->createToken($request->device_name)->plainTextToken;
+
+        Mail::to("kunozgamlowoka@gmail.com")->send(new NewUser($user));
+//        SendMail::dispatch($user);
+
+      /*  //Handle Notifications
+        dispatch(function ($user) {
+            Mail::to('kunozgamlowoka@gmail.com')->send(new NewUser($user));
+        })->afterResponse();*/
 
         return response()->json([
             'user'  =>  new UserResource($user),
