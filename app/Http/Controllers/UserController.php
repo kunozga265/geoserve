@@ -162,7 +162,8 @@ class UserController extends Controller
                 //Run notifications
                 (new NotificationController())->notifyUser($user,"USER_DISABLED");
 
-                return response()->json(['message'=>'User has been disabled']);
+                return response()->json(new UserResource($user));
+
             }else
                 return response()->json(['message'=>'User already disabled'],405);
 
