@@ -118,6 +118,7 @@ class RequestFormController extends Controller
             }
 
             $requestForm=RequestForm::create([
+                'code'                          =>  (new AppController())->generateUniqueCode(),
                 //Requested information
                 'type'                          =>  $request->type,
                 'personCollectingAdvance'       =>  $request->personCollectingAdvance,
@@ -144,6 +145,9 @@ class RequestFormController extends Controller
                 'editable'                      =>  true,
             ]);
 
+            //Run notifications
+            (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
+
             return response()->json(new RequestFormResource($requestForm),201);
 
         } elseif($request->type == "VEHICLE_MAINTENANCE" ){
@@ -166,7 +170,6 @@ class RequestFormController extends Controller
             $stagesApprovalPosition=$stages[0]->position;
         }
 
-
         //get vehicle details
         $vehicle=Vehicle::find($request->vehicleId);
 
@@ -175,6 +178,7 @@ class RequestFormController extends Controller
 
 
         $requestForm=RequestForm::create([
+            'code'                          =>  (new AppController())->generateUniqueCode(),
             //Requested information
             'type'                          =>  $request->type,
             'assessedBy'                    =>  $request->assessedBy,
@@ -200,6 +204,9 @@ class RequestFormController extends Controller
             'approvalStatus'                =>  0,
             'editable'                      =>  true,
         ]);
+
+            //Run notifications
+            (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
             return response()->json(new RequestFormResource($requestForm),201);
 
@@ -234,6 +241,7 @@ class RequestFormController extends Controller
 
 
             $requestForm=RequestForm::create([
+                'code'                          =>  (new AppController())->generateUniqueCode(),
                 //Requested information
                 'type'                          =>  $request->type,
                 'driverName'                    =>  $request->driverName,
@@ -266,6 +274,9 @@ class RequestFormController extends Controller
                 'approvalStatus'                =>  0,
                 'editable'                      =>  true,
             ]);
+
+            //Run notifications
+            (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
             return response()->json(new RequestFormResource($requestForm),201);
 
@@ -317,6 +328,9 @@ class RequestFormController extends Controller
                         //attach this request under approved requests
                         $requestForm->approvedBy()->attach($user);
 
+                        (new NotificationController())->notifyApproval($requestForm,$user);
+                        (new NotificationController())->notifyFinance($requestForm,"WAITING_INITIATE");
+
                         return response()->json(new RequestFormResource($requestForm));
 
                     }else
@@ -357,8 +371,6 @@ class RequestFormController extends Controller
                                 'editable'                  => false,
                             ]);
 
-                            //notify next position holder
-
                         }
                         //there are no more stages
                         else{
@@ -375,6 +387,10 @@ class RequestFormController extends Controller
 
                         //attach this request under approved requests
                         $requestForm->approvedBy()->attach($user);
+
+                        //Run notifications
+                        (new NotificationController())->notifyApproval($requestForm,$user);
+                        (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
                         return response()->json(new RequestFormResource($requestForm));
 
@@ -426,6 +442,9 @@ class RequestFormController extends Controller
                             'editable'          => true,
                         ]);
 
+                        //Run Notifications
+                        (new NotificationController())->notifyDenial($requestForm,$user);
+
                         return response()->json(new RequestFormResource($requestForm));
 
                     }else
@@ -444,6 +463,9 @@ class RequestFormController extends Controller
                             'remarks'           => $this->addRemarks($user,$requestForm,$request->remarks),
                             'editable'          => true
                         ]);
+
+                        //Run Notifications
+                        (new NotificationController())->notifyDenial($requestForm,$user);
 
                         return response()->json(new RequestFormResource($requestForm));
 
@@ -646,6 +668,9 @@ class RequestFormController extends Controller
                         'approvalStatus' => 3
                     ]);
 
+                    (new NotificationController())->notifyUser($requestForm,"INITIATED");
+                    (new NotificationController())->notifyFinance($requestForm,"WAITING_RECONCILE");
+
                     return response()->json(new RequestFormResource($requestForm));
 
                 }else
@@ -700,6 +725,8 @@ class RequestFormController extends Controller
                         //Should it be made compulsory?
                         'receipts'       => json_encode($request->receipts)
                     ]);
+
+                    (new NotificationController())->notifyUser($requestForm,"RECONCILED");
 
                     return response()->json(new RequestFormResource($requestForm));
 
