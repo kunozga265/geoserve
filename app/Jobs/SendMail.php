@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Mail\NewUser;
+use App\Mail\UserNewMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,6 +33,6 @@ class SendMail implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to("kunozgamlowoka@gmail.com")->send(new NewUser($this->user));
+        Mail::to("kunozgamlowoka@gmail.com")->send(new UserNewMail($this->user));
     }
 }

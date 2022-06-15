@@ -2,27 +2,28 @@
 
 namespace App\Mail;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class NewUser extends Mailable implements ShouldQueue, ShouldBeUnique
+class RequestFormInitiatedMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
 
-    public $user;
+    public $userName;
+    public $emailSubject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($user,$title)
     {
-        $this->user=$user;
+        $this->userName=$user->firstName." ".$user->lastName;
+        $this->emailSubject=$title. " Initiated";
     }
 
     /**
@@ -32,7 +33,6 @@ class NewUser extends Mailable implements ShouldQueue, ShouldBeUnique
      */
     public function build()
     {
-        $name=$this->user->firstName. " " .$this->user->lastName;
-        return $this->view('emails.new-user')->subject("New User: ".$name);
+        return $this->view('emails.request-form-initiated')->subject($this->emailSubject);
     }
 }
