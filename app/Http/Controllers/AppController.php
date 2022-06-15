@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RequestForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -98,4 +99,30 @@ class AppController extends Controller
         else
             return $lowercaseExt;
     }
+
+    public function generateUniqueCode()
+    {
+
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersNumber = strlen($characters);
+        $codeLength = 8;
+
+        do{
+            //initialise code to an empty string
+            $code='';
+
+            //generate a code according to the length
+            while (strlen($code) < $codeLength) {
+                $position = rand(0, $charactersNumber - 1);
+                $character = $characters[$position];
+                $code .= $character;
+            }
+
+        //If the code exists generate another one
+        }while(RequestForm::where('code',$code)->exists());
+
+        //return unique code
+        return $code;
+    }
+
 }
