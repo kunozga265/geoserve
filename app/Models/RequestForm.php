@@ -32,6 +32,7 @@ class RequestForm extends Model
     }
 
     protected $fillable=[
+        "code",
         "type",
         "personCollectingAdvance",
         "project_id",

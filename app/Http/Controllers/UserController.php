@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Jobs\SendMail;
-use App\Mail\NewUser;
+use App\Mail\UserNewMail;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -64,9 +64,9 @@ class UserController extends Controller
         ]);
 
         $user=User::create([
-            "firstName"     => $request->firstName,
-            "middleName"    => $request->middleName,
-            "lastName"      => $request->lastName,
+            "firstName"     => ucwords($request->firstName),
+            "middleName"    => ucwords($request->middleName),
+            "lastName"      => ucwords($request->lastName),
             "email"         => $request->email,
             "password"      => bcrypt($request->password),
             'position_id'   => $request->positionId,
@@ -77,13 +77,8 @@ class UserController extends Controller
 
         $token=$user->createToken($request->device_name)->plainTextToken;
 
-        Mail::to("kunozgamlowoka@gmail.com")->send(new NewUser($user));
-//        SendMail::dispatch($user);
-
-      /*  //Handle Notifications
-        dispatch(function ($user) {
-            Mail::to('kunozgamlowoka@gmail.com')->send(new NewUser($user));
-        })->afterResponse();*/
+        //Run notifications
+        (new NotificationController())->notifyManagement($user,"USER_NEW");
 
         return response()->json([
             'user'  =>  new UserResource($user),
@@ -128,6 +123,9 @@ class UserController extends Controller
                     $user->roles()->attach($accountantRole);
                 }
 
+                //Run notifications
+                (new NotificationController())->notifyUser($user,"USER_VERIFIED");
+
                 return response()->json(new UserResource($user));
 
             }else
@@ -160,6 +158,9 @@ class UserController extends Controller
                 //Give this user an unverified role
                 $unverifiedRole=Role::where('name','unverified')->first();
                 $user->roles()->attach($unverifiedRole);
+
+                //Run notifications
+                (new NotificationController())->notifyUser($user,"USER_DISABLED");
 
                 return response()->json(['message'=>'User has been disabled']);
             }else

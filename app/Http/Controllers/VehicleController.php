@@ -50,6 +50,9 @@ class VehicleController extends Controller
             "verified"                      =>  false,
         ]);
 
+        //Run notifications
+        (new NotificationController())->notifyManagement($vehicle,"VEHICLE_NEW");
+
         return response()->json(new VehicleResource($vehicle),201);
     }
 

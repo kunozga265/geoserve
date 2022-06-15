@@ -46,6 +46,9 @@ class ProjectController extends Controller
             "verified"   =>  false,
         ]);
 
+        //Run notifications
+        (new NotificationController())->notifyManagement($project,"PROJECT_NEW");
+
         return response()->json(new ProjectResource($project));
     }
 
