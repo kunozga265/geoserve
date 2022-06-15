@@ -22,6 +22,7 @@ class RequestFormResource extends JsonResource
             case "CASH":
                 return [
                     'id'                                  =>  $this->id,
+                    'code'                                =>  $this->code,
                     'type'                                =>  $this->type,
                     'personCollectingAdvance'             =>  $this->personCollectingAdvance,
                     'project'                             =>  $this->project,
