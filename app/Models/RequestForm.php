@@ -21,6 +21,16 @@ class RequestForm extends Model
         return $this->belongsToMany(User::class,'requests_user','request_id','user_id');
     }
 
+    public function deniedBy()
+    {
+        return $this->belongsTo(User::class,'denied_by_id','id');
+    }
+
+    public function approvalBy()
+    {
+        return $this->belongsTo(User::class,'approval_by_id','id');
+    }
+
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
@@ -64,5 +74,6 @@ class RequestForm extends Model
         "quotes",
         "receipts",
         "editable",
+        "denied_by_id"
     ];
 }

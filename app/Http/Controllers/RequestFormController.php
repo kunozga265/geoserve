@@ -439,6 +439,7 @@ class RequestFormController extends Controller
                         $requestForm->update([
                             'approvalStatus'    => 2,
                             'remarks'           => $this->addRemarks($user,$requestForm,$request->remarks),
+                            'denied_by_id'      => $user->id,
                             'editable'          => true,
                         ]);
 
@@ -540,6 +541,7 @@ class RequestFormController extends Controller
                         'quotes'                        =>  json_encode($request->quotes),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  false,
+                        'denied_by_id'                  => null,
                     ]);
 
                     return response()->json(new RequestFormResource($requestForm));
@@ -568,6 +570,7 @@ class RequestFormController extends Controller
                         'quotes'                        =>  json_encode($request->quotes),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  false,
+                        'denied_by_id'                  => null,
                     ]);
 
                     return response()->json(new RequestFormResource($requestForm));
@@ -603,6 +606,7 @@ class RequestFormController extends Controller
                         'quotes'                        =>  json_encode($request->quotes),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  false,
+                        'denied_by_id'                  =>  null,
                     ]);
 
                     return response()->json(new RequestFormResource($requestForm));

@@ -62,6 +62,8 @@ class CreateRequestsTable extends Migration
             $table->json("quotes")->nullable();
             $table->json("receipts")->nullable();
 
+            $table->integer("denied_by_id")->nullable();
+
             $table->timestamps();
         });
     }
