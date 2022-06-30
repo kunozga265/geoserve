@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Controllers\AppController;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,6 +17,24 @@ class RequestFormResource extends JsonResource
      */
     public function toArray($request)
     {
+        //get user
+        $user=(new AppController())->getAuthUser($request);
+        $canEdit=$this->editable && $this->user->id === $user->id;
+        $canDelete=$this->editable && $this->user->id === $user->id && ($this->approvedBy->isEmpty());
+        $canDiscard=$this->editable && $this->user->id === $user->id && !($this->approvedBy->isEmpty());
+        $canInitiate=$this->approvalStatus==1 && $user->hasRole('accountant');
+        $canReconcile=$this->approvalStatus==3 && $user->hasRole('accountant');
+
+        //next to approve
+        if($this->stagesApprovalStatus === 0)
+            $nextApprove=$this->stagesApprovalPosition === $user->position->id;
+        else
+            $nextApprove=$user->hasRole('management');
+
+
+        $canApproveOrDeny=$this->user->id !== $user->id && $this->approvalBy == null && $this->approvalStatus!==2 && $nextApprove;
+
+
         switch ($this->type){
 
             case "MATERIALS":
@@ -28,7 +47,7 @@ class RequestFormResource extends JsonResource
                     'project'                             =>  $this->project,
                     'information'                         =>  json_decode($this->information),
                     'total'                               =>  $this->total,
-                    'requestedBy'                         =>  $this->user,
+                    'requestedBy'                         =>  new UserResource($this->user),
                     'dateRequested'                       =>  $this->dateRequested,
                     'stagesApprovalPosition'              =>  $this->approvalPosition($this->stagesApprovalPosition),
                     'stagesApprovalStatus'                =>  $this->stagesApprovalStatus,
@@ -36,23 +55,35 @@ class RequestFormResource extends JsonResource
                     'totalStages'                         =>  $this->totalStages,
                     'stages'                              =>  json_decode($this->stages),
                     'approvalStatus'                      =>  $this->approvalStatus,
+                    'approvedDate'                        =>  $this->approvedDate,
+                    'dateInitiated'                       =>  $this->dateInitiated,
+                    'dateReconciled'                      =>  $this->dateReconciled,
                     'status'                              =>  $this->getApprovalStatus($this->approvalStatus),
-                    'approvedBy'                          =>  $this->approvalBy,
+                    'statusMessage'                       =>  $this->getStatusMessage($this),
+                    'approvedBy'                          =>  new UserResource($this->approvalBy),
                     'deniedBy'                            =>  $this->deniedBy,
+                    'editable'                            =>  $this->editable,
                     'remarks'                             =>  json_decode($this->remarks),
                     'quotes'                              =>  json_decode($this->quotes),
                     'receipts'                            =>  json_decode($this->receipts),
+                    'canEdit'                             =>  $canEdit,
+                    'canDelete'                           =>  $canDelete,
+                    'canDiscard'                          =>  $canDiscard,
+                    'canApproveOrDeny'                    =>  $canApproveOrDeny,
+                    'canInitiate'                         =>  $canInitiate,
+                    'canReconcile'                        =>  $canReconcile,
                 ];
 
             case "VEHICLE_MAINTENANCE":
                 return [
                     'id'                                  =>  $this->id,
+                    'code'                                =>  $this->code,
                     'type'                                =>  $this->type,
                     'assessedBy'                          =>  $this->assessedBy,
                     'vehicle'                             =>  $this->vehicle,
                     'information'                         =>  json_decode($this->information),
                     'total'                               =>  $this->total,
-                    'requestedBy'                         =>  $this->user,
+                    'requestedBy'                         =>  new UserResource($this->user),
                     'dateRequested'                       =>  $this->dateRequested,
                     'stagesApprovalPosition'              =>  $this->approvalPosition($this->stagesApprovalPosition),
                     'stagesApprovalStatus'                =>  $this->stagesApprovalStatus,
@@ -60,18 +91,30 @@ class RequestFormResource extends JsonResource
                     'totalStages'                         =>  $this->totalStages,
                     'stages'                              =>  json_decode($this->stages),
                     'approvalStatus'                      =>  $this->approvalStatus,
+                    'approvedDate'                        =>  $this->approvedDate,
+                    'dateInitiated'                       =>  $this->dateInitiated,
+                    'dateReconciled'                      =>  $this->dateReconciled,
                     'status'                              =>  $this->getApprovalStatus($this->approvalStatus),
-                    'approvedBy'                          =>  $this->approvalBy,
+                    'statusMessage'                       =>  $this->getStatusMessage($this),
+                    'approvedBy'                          =>  new UserResource($this->approvalBy),
                     'deniedBy'                            =>  $this->deniedBy,
+                    'editable'                            =>  $this->editable,
                     'remarks'                             =>  json_decode($this->remarks),
                     'quotes'                              =>  json_decode($this->quotes),
                     'receipts'                            =>  json_decode($this->receipts),
+                    'canEdit'                             =>  $canEdit,
+                    'canDelete'                           =>  $canDelete,
+                    'canDiscard'                          =>  $canDiscard,
+                    'canApproveOrDeny'                    =>  $canApproveOrDeny,
+                    'canInitiate'                         =>  $canInitiate,
+                    'canReconcile'                        =>  $canReconcile,
                 ];
 
             case "FUEL":
                 return [
                     'id'                                  =>  $this->id,
                     'type'                                =>  $this->type,
+                    'code'                                =>  $this->code,
                     'driverName'                          =>  $this->driverName,
                     'fuelRequestedLitres'                 =>  $this->fuelRequestedLitres,
                     'fuelRequestedMoney'                  =>  $this->fuelRequestedMoney,
@@ -81,7 +124,7 @@ class RequestFormResource extends JsonResource
                     'lastRefillDate'                      =>  $this->lastRefillDate,
                     'lastRefillFuelReceived'              =>  $this->lastRefillFuelReceived,
                     'lastRefillMileageCovered'            =>  $this->lastRefillMileageCovered,
-                    'requestedBy'                         =>  $this->user,
+                    'requestedBy'                         =>  new UserResource($this->user),
                     'dateRequested'                       =>  $this->dateRequested,
                     'stagesApprovalPosition'              =>  $this->approvalPosition($this->stagesApprovalPosition),
                     'stagesApprovalStatus'                =>  $this->stagesApprovalStatus,
@@ -89,12 +132,23 @@ class RequestFormResource extends JsonResource
                     'totalStages'                         =>  $this->totalStages,
                     'stages'                              =>  json_decode($this->stages),
                     'approvalStatus'                      =>  $this->approvalStatus,
+                    'approvedDate'                        =>  $this->approvedDate,
+                    'dateInitiated'                       =>  $this->dateInitiated,
+                    'dateReconciled'                      =>  $this->dateReconciled,
                     'status'                              =>  $this->getApprovalStatus($this->approvalStatus),
-                    'approvedBy'                          =>  $this->approvalBy,
+                    'statusMessage'                       =>  $this->getStatusMessage($this),
+                    'approvedBy'                          =>  new UserResource($this->approvalBy),
                     'deniedBy'                            =>  $this->deniedBy,
+                    'editable'                            =>  $this->editable,
                     'remarks'                             =>  json_decode($this->remarks),
                     'quotes'                              =>  json_decode($this->quotes),
                     'receipts'                            =>  json_decode($this->receipts),
+                    'canEdit'                             =>  $canEdit,
+                    'canDelete'                           =>  $canDelete,
+                    'canDiscard'                          =>  $canDiscard,
+                    'canApproveOrDeny'                    =>  $canApproveOrDeny,
+                    'canInitiate'                         =>  $canInitiate,
+                    'canReconcile'                        =>  $canReconcile,
                 ];
 
             default:
@@ -130,6 +184,32 @@ class RequestFormResource extends JsonResource
                 return "Initiated";
             case 4:
                 return "Reconciled";
+            case 5:
+                return "Discarded";
+            default:
+                return "Unknown";
+        }
+    }
+
+    private function getStatusMessage($requestForm){
+        switch ($requestForm->approvalStatus){
+            case 0:
+                if ($requestForm->stagesApprovalStatus)
+                    return "Pending : Manager to approve";
+                else {
+                    $position=$this->approvalPosition($requestForm->stagesApprovalPosition);
+                    return "Pending : " . $position->title . " to approve";
+                }
+            case 1:
+                return "Approved: Accountant to initiate";
+            case 2:
+                return "Denied: By ".$requestForm->deniedBy->firstName." ".$requestForm->deniedBy->middleName." ".$requestForm->deniedBy->lastName;
+            case 3:
+                return "Accountant to reconcile";
+            case 4:
+                return "Reconciled";
+            case 5:
+                return "Discarded";
             default:
                 return "Unknown";
         }

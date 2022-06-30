@@ -5,15 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class VehicleController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    public function index(Request $request)
     {
         $user=(new AppController())->getAuthUser($request);
 
@@ -22,27 +23,43 @@ class VehicleController extends Controller
         }else
             $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->where('verified',1)->get();
 
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json(VehicleResource::collection($vehicles));
+        else{
+            //Web Response
+            return Inertia::render('Vehicles/Index',[
+                'vehicles'     =>  VehicleResource::collection($vehicles),
+            ]);
+        }
 
-
-        return response()->json(VehicleResource::collection($vehicles));
+    }
+    public function create(Request $request)
+    {
+        return Inertia::render('Vehicles/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
         $request->validate([
             "vehicleRegistrationNumber" =>  ['required','unique:vehicles'],
-            "mileage"                   =>  ['required'],
+            "mileage"                   =>  ['required','numeric'],
         ]);
+
+        if(isset($request->lastRefillFuelReceived))
+            $request->validate(["lastRefillFuelReceived" =>  'numeric']);
+
+        if(isset($request->lastRefillMileageCovered))
+            $request->validate(["lastRefillMileageCovered" =>  'numeric']);
 
         $vehicle=Vehicle::create([
             "photo"                         =>  $request->photo,
-            "vehicleRegistrationNumber"     =>  $request->vehicleRegistrationNumber,
+            "vehicleRegistrationNumber"     =>  strtoupper($request->vehicleRegistrationNumber),
             "mileage"                       =>  $request->mileage,
             "lastRefillDate"                =>  $request->lastRefillDate,
             "lastRefillFuelReceived"        =>  $request->lastRefillFuelReceived,
@@ -53,23 +70,66 @@ class VehicleController extends Controller
         //Run notifications
         (new NotificationController())->notifyManagement($vehicle,"VEHICLE_NEW");
 
-        return response()->json(new VehicleResource($vehicle),201);
+        if ((new AppController())->isApi($request)) {
+            //API Response
+            return response()->json(new VehicleResource($vehicle),201);
+        }else{
+            //Web Response
+            return Redirect::route('vehicles')->with('success','Vehicle created');
+        }
+
+
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
         $vehicle=Vehicle::find($id);
 
-        if (is_object($vehicle))
-            return response()->json(new VehicleResource($vehicle));
-        else
-            return response()->json(['message'=>'Vehicle not found'],404);
+        if (is_object($vehicle)) {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new VehicleResource($vehicle));
+            }else{
+                //Web Response
+                return Inertia::render('Vehicles/Show',[
+                    'vehicle' => new VehicleResource($vehicle)
+                ]);
+            }
+
+        }
+        else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'Vehicle not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Vehicle not found');
+            }
+        }
+    }
+
+    public function edit(Request $request,$id)
+    {
+        $vehicle=Vehicle::find($id);
+
+        if (is_object($vehicle)) {
+
+            if($vehicle->verified) {
+                return Redirect::back()->with('error','Vehicle is not editable');
+            }
+
+            return Inertia::render('Vehicles/Edit',[
+                'vehicle' => new VehicleResource($vehicle)
+            ]);
+        }
+        else {
+            return Redirect::back()->with('error','Vehicle not found');
+        }
     }
 
     /**
@@ -77,7 +137,6 @@ class VehicleController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
@@ -85,27 +144,61 @@ class VehicleController extends Controller
 
         if (is_object($vehicle)){
 
-            if($vehicle->verified)
-                return response()->json(['message'=>'Vehicle is not editable'],404);
+            if($vehicle->verified) {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => 'Vehicle is not editable'], 404);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Vehicle is not editable');
+                }
+            }
 
             $request->validate([
                 "vehicleRegistrationNumber" =>  ['required'],
                 "mileage"                   =>  ['required'],
             ]);
 
+            if(isset($request->lastRefillFuelReceived))
+                $request->validate(["lastRefillFuelReceived" =>  'numeric']);
+
+            if(isset($request->lastRefillMileageCovered))
+                $request->validate(["lastRefillMileageCovered" =>  'numeric']);
+
+            if (isset($request->photo)){
+                if ($request->photo != $vehicle->photo){
+                    if (file_exists($vehicle->photo))
+                        Storage::disk("public_uploads")->delete($vehicle->photo);
+                }
+            }
+
             $vehicle->update([
                 "photo"                         =>  $request->photo,
-                "vehicleRegistrationNumber"     =>  $request->vehicleRegistrationNumber,
+                "vehicleRegistrationNumber"     =>  strtoupper($request->vehicleRegistrationNumber),
                 "mileage"                       =>  $request->mileage,
                 "lastRefillDate"                =>  $request->lastRefillDate,
                 "lastRefillFuelReceived"        =>  $request->lastRefillFuelReceived,
                 "lastRefillMileageCovered"      =>  $request->lastRefillMileageCovered,
             ]);
 
-            return response()->json(new VehicleResource($vehicle));
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new VehicleResource($vehicle));
+            }else{
+                //Web Response
+                return Redirect::route('vehicles')->with('success','Vehicle updated');
+            }
+
         }
-        else
-            return response()->json(['message'=>'Vehicle not found'],404);
+        else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'Vehicle not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Vehicle not found');
+            }
+        }
     }
 
     /**
@@ -113,7 +206,6 @@ class VehicleController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function verify(Request $request, $id)
     {
@@ -125,32 +217,71 @@ class VehicleController extends Controller
                 "verified"  =>  true,
             ]);
 
-            return response()->json(new VehicleResource($vehicle));
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new VehicleResource($vehicle));
+            }else{
+                //Web Response
+                return Redirect::route('vehicles')->with('success','Vehicle verified');
+            }
         }
-        else
-            return response()->json(['message'=>'Vehicle not found'],404);
+        else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'Vehicle not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Vehicle not found');
+            }
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
         $vehicle=Vehicle::find($id);
 
         if (is_object($vehicle)){
 
-            if($vehicle->verified)
-                return response()->json(['message'=>'Vehicle cannot be deleted'],404);
+            if($vehicle->verified) {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => 'Vehicle cannot be deleted'], 404);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Vehicle cannot be deleted');
+                }
+
+            }
+
+            //delete avatar
+            if(file_exists($vehicle->photo)){
+                Storage::disk("public_uploads")->delete($vehicle->photo);
+            }
 
             $vehicle->delete();
 
-            return response()->json(['message'=>'Vehicle has been deleted']);
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message'=>'Vehicle has been deleted']);
+            }else{
+                //Web Response
+                return Redirect::route('vehicles')->with('success','Vehicle has been deleted');
+            }
 
-        } else
-            return response()->json(['message'=>'Vehicle not found'],404);
+
+        } else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'Vehicle not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Vehicle not found');
+            }
+        }
     }
 }

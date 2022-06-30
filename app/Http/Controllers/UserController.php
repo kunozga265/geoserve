@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PositionResource;
+use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Jobs\SendMail;
 use App\Mail\UserNewMail;
+use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -91,7 +96,6 @@ class UserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function verify(Request $request, $id)
     {
@@ -126,13 +130,33 @@ class UserController extends Controller
                 //Run notifications
                 (new NotificationController())->notifyUser($user,"USER_VERIFIED");
 
-                return response()->json(new UserResource($user));
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(new UserResource($user));
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('success','User has been verified');
+                }
 
-            }else
-                return response()->json(['message'=>'User already verified'],405);
+            }else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => 'User already verified'], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','User already verified');
+                }
+            }
 
-        }else
-            return response()->json(['message'=>'User not found'],404);
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','User not found');
+            }
+        }
     }
 
     /**
@@ -140,7 +164,42 @@ class UserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     */
+    public function discard(Request $request, $id)
+    {
+        $user=User::find($id);
+
+        if (is_object($user)){
+            //delete unverified users
+            foreach ($user->roles as $role)
+                $user->roles()->detach($role);
+
+            $user->delete();
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User Discarded']);
+            }else{
+                //Web Response
+                return Redirect::route('users')->with('success','User Discarded');
+            }
+
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','User not found');
+            }
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      */
     public function disable(Request $request, $id)
     {
@@ -148,38 +207,77 @@ class UserController extends Controller
 
         if (is_object($user)){
 
-            if ($user->hasRole('management') || $user->hasRole('administrator')){
-                return response()->json(['message'=>'Cannot disabled this user'],405);
-            }elseif ($user->hasRole('employee')){
-                //Remove employee role
-                $employeeRole=Role::where('name','employee')->first();
-                $user->roles()->detach($employeeRole);
+            if ($user->hasRole('management')){
 
-                //Give this user an unverified role
-                $unverifiedRole=Role::where('name','unverified')->first();
-                $user->roles()->attach($unverifiedRole);
+                $managementRole=Role::where('name','management')->first();
+                $managers=$managementRole->users;
 
-                //Run notifications
-                (new NotificationController())->notifyUser($user,"USER_DISABLED");
+                if ($managers->count()==1){
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message'=>'Cannot disabled this user. There is no other user holding a management position.'],405);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','Cannot disabled this user. There is no other user holding a management position.');
+                    }
+                }
+            }
 
+            //remove all roles
+            foreach ($user->roles as $role)
+                $user->roles()->detach($role);
+
+            //Give this user an unverified role
+            $disabledRole=Role::where('name','disabled')->first();
+            $user->roles()->attach($disabledRole);
+
+            //Run notifications
+            (new NotificationController())->notifyUser($user,"USER_DISABLED");
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
                 return response()->json(new UserResource($user));
+            }else{
+                //Web Response
+                return Redirect::back()->with('success','User disabled');
+            }
 
-            }else
-                return response()->json(['message'=>'User already disabled'],405);
-
-        }else
-            return response()->json(['message'=>'User not found'],404);
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','User not found');
+            }
+        }
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users=User::all();
-        return response()->json(UserResource::collection($users));
+        $users=User::orderBy('firstName','asc')->get();
+
+        //Web
+        $positions=Position::orderBy('title','asc')->get();
+        $roles=Role::orderBy('name','asc')->get();
+
+        if ((new AppController())->isApi($request)) {
+            //API Response
+            return response()->json(UserResource::collection($users));
+        }else{
+            //Web Response
+            return Inertia::render('Users/Index',[
+                'users'         =>  UserResource::collection($users),
+                'positions'     =>  PositionResource::collection($positions),
+                'roles'         =>  RoleResource::collection($roles)
+            ]);
+        }
+
+
     }
 
     /**
@@ -197,16 +295,33 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
         $user=User::find($id);
 
-        if (is_object($user))
-            return response()->json(new UserResource($user));
-        else
-            return response()->json(['message'=>'User not found'],404);
+        if (is_object($user)) {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new UserResource($user));
+            }else{
+                //Web Response
+                return Inertia::render('Users/Show',[
+                    'user' =>  new UserResource($user)
+                ]);
+            }
+
+        }
+        else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','User not found');
+            }
+
+        }
     }
 
     /**

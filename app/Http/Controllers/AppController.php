@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\RequestForm;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -12,9 +14,16 @@ class AppController extends Controller
 {
     public function getAuthUser(Request $request)
     {
-        $requestToken=substr($request->server('HTTP_AUTHORIZATION'),7);
-        $token = PersonalAccessToken::findToken($requestToken);
-        return $token->tokenable;
+        if ($this->isApi($request)) {
+            //API User
+            $requestToken=substr($request->server('HTTP_AUTHORIZATION'),7);
+            $token = PersonalAccessToken::findToken($requestToken);
+            return $token->tokenable;
+        }
+        else{
+            return User::find(Auth::id());
+        }
+
     }
 
     public function uploadFile(Request $request)
@@ -50,7 +59,7 @@ class AppController extends Controller
                 $filename="files/other/".$type."-".uniqid().".".$ext;
         }
 
-        if($type=='PHOTO'){
+        if($type=='VEHICLE'){
             if($ext=='jpg' || $ext=='png'){
                 try{
                     Storage::disk('public_uploads')->put(
@@ -85,8 +94,23 @@ class AppController extends Controller
         }
 
         return response()->json([
-            'file'      =>  $filename
+            'file'      =>  $filename,
+            'ext'       =>  $ext
         ]);
+    }
+
+    public function removeFile(Request $request)
+    {
+        if(file_exists($request->file)) {
+            Storage::disk("public_uploads")->delete($request->file);
+            return response()->json([
+                'message' => "Successfully deleted",
+            ]);
+        }else{
+            return response()->json([
+                'message' => "File does not exist",
+            ],404);
+        }
     }
 
     private function getExtension($explodedImage)
@@ -125,4 +149,10 @@ class AppController extends Controller
         return $code;
     }
 
+    public function isApi(Request $request)
+    {
+        //get cookie object
+        $CSRF_TOKEN=$request->cookie();
+        return count($CSRF_TOKEN) == 0;
+    }
 }

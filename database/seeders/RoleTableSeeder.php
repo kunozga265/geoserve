@@ -33,5 +33,9 @@ class RoleTableSeeder extends Seeder
         Role::create([
             "name"=>"unverified"
         ]);
+
+        Role::create([
+            "name"=>"disabled"
+        ]);
     }
 }

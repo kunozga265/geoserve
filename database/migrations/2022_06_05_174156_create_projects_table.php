@@ -19,6 +19,7 @@ class CreateProjectsTable extends Migration
             $table->string("client");
             $table->string("site");
             $table->boolean("verified");
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
     }

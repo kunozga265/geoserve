@@ -1,10 +1,11 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-    content: [
-        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+    purge: [
+        './vendor/laravel/jetstream/**/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        './resources/js/**/*.vue',
         "./node_modules/flowbite/**/*.js"
     ],
 
@@ -19,8 +20,5 @@ module.exports = {
         },
     },
 
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('flowbite/plugin')
-    ],
+    plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('flowbite/plugin')],
 };

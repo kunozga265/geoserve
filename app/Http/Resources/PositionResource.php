@@ -18,6 +18,8 @@ class PositionResource extends JsonResource
           "id"                  =>  $this->id,
           "title"               =>  $this->title,
           "grade"               =>  $this->grade,
+          "state"               =>  $this->state,
+          "usersCount"          =>  $this->users->count(),
 //          "approvalStages"      =>  json_decode($this->approvalStages),
         ];
     }

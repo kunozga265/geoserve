@@ -64,6 +64,7 @@ class CreateRequestsTable extends Migration
 
             $table->integer("denied_by_id")->nullable();
 
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
     }

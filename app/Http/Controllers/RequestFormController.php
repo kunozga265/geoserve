@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProjectResource;
 use App\Http\Resources\RequestFormResource;
+use App\Http\Resources\VehicleResource;
 use App\Models\Project;
 use App\Models\RequestForm;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use function PHPUnit\Framework\isEmpty;
 
 /* Approval Statuses
  * 0 -> Pending
@@ -17,10 +22,41 @@ use Illuminate\Support\Facades\Storage;
  * 2 -> Denied
  * 3 -> Initiated
  * 4 -> Reconciled
+ * 5 -> Discarded
  */
 
 class RequestFormController extends Controller
 {
+    public function dashboard(Request $request)
+    {
+        //get user
+        $user=(new AppController())->getAuthUser($request);
+
+        if($user->hasRole('management') || $user->hasRole('administrator')){
+//            $active=RequestForm::orderBy('dateRequested','desc')->where('approvalStatus','<',4)->get();
+            $active=[];
+        }else
+            $active = RequestForm::where('user_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+
+        if($user->hasRole('management')){
+            $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
+        } elseif($user->hasRole('accountant')){
+            $toReconcile=RequestForm::where('approvalStatus',3)->orderBy('dateRequested','desc')->get();
+            $toInitiate=RequestForm::where('approvalStatus',1)->orderBy('dateRequested','desc')->get();
+            $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
+
+            //Merge
+            $toApprove=$toApprove->merge($toInitiate);
+            $toApprove=$toApprove->merge($toReconcile);
+        }else{
+            $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
+        }
+        return Inertia::render('Dashboard',[
+            'toApprove'     => RequestFormResource::collection($toApprove),
+            'active'        => RequestFormResource::collection($active),
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -48,10 +84,12 @@ class RequestFormController extends Controller
         //get user
         $user=(new AppController())->getAuthUser($request);
         $toInitiate=[];
+        $toReconcile=[];
 
         if($user->hasRole('management')){
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
         } elseif($user->hasRole('accountant')){
+            $toReconcile=RequestForm::where('approvalStatus',3)->orderBy('dateRequested','desc')->get();
             $toInitiate=RequestForm::where('approvalStatus',1)->orderBy('dateRequested','desc')->get();
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
         }else{
@@ -61,6 +99,7 @@ class RequestFormController extends Controller
         return response()->json([
             'toApprove'     =>  RequestFormResource::collection($toApprove),
             'toInitiate'    =>  RequestFormResource::collection($toInitiate),
+            'toReconcile'    =>  RequestFormResource::collection($toReconcile),
         ]);
     }
 
@@ -85,11 +124,20 @@ class RequestFormController extends Controller
         }
     }
 
+    public function create(Request $request)
+    {
+        $projects = Project::orderBy('name', 'asc')->where('verified', 1)->get();
+        $vehicles = Vehicle::orderBy('vehicleRegistrationNumber', 'asc')->where('verified', 1)->get();
+        return Inertia::render('RequestForms/Create',[
+            'projects'=> ProjectResource::collection($projects),
+            'vehicles'=> VehicleResource::collection($vehicles),
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -148,7 +196,13 @@ class RequestFormController extends Controller
             //Run notifications
             (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
-            return response()->json(new RequestFormResource($requestForm),201);
+            if ((new AppController())->isApi($request))
+                //API Response
+                return response()->json(new RequestFormResource($requestForm),201);
+            else{
+                //Web Response
+                return Redirect::route('dashboard')->with('success','Request created!');
+            }
 
         } elseif($request->type == "VEHICLE_MAINTENANCE" ){
 
@@ -208,7 +262,13 @@ class RequestFormController extends Controller
             //Run notifications
             (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
-            return response()->json(new RequestFormResource($requestForm),201);
+            if ((new AppController())->isApi($request))
+                //API Response
+                return response()->json(new RequestFormResource($requestForm),201);
+            else{
+                //Web Response
+                return Redirect::route('dashboard')->with('success','Request created!');
+            }
 
     } elseif($request->type == "FUEL" ){
 
@@ -278,17 +338,29 @@ class RequestFormController extends Controller
             //Run notifications
             (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
-            return response()->json(new RequestFormResource($requestForm),201);
+            if ((new AppController())->isApi($request))
+                //API Response
+                return response()->json(new RequestFormResource($requestForm),201);
+            else{
+                //Web Response
+                return Redirect::route('dashboard')->with('success','Request created!');
+            }
 
-        }else
-            return response()->json(['message'=>"Request form type unknown"],422);
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form type unknown"], 422);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form type unknown');
+            }
+        }
     }
 
     /**
      * Display the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function approve(Request $request, int $id)
     {
@@ -304,7 +376,13 @@ class RequestFormController extends Controller
             if($requestForm->approvalStatus == 0){
                 //check if the user is the owner of the request
                 if ($requestForm->user->id == $user->id ){
-                    return response()->json(['message'=>"You cannot approve your own request form"],405);
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message'=>"You cannot approve your own request form"],405);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','You cannot approve your own request form');
+                    }
                 }
 
 
@@ -331,10 +409,23 @@ class RequestFormController extends Controller
                         (new NotificationController())->notifyApproval($requestForm,$user);
                         (new NotificationController())->notifyFinance($requestForm,"WAITING_INITIATE");
 
-                        return response()->json(new RequestFormResource($requestForm));
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(new RequestFormResource($requestForm));
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('success','Request approved');
+                        }
 
-                    }else
-                        return response()->json([ 'message'=>'Unauthorized. Does not have access rights.'],403);
+                    }else {
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(['message' => 'Unauthorized. Does not have access rights.'], 403);
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('error','Unauthorized. Does not have access rights.');
+                        }
+                    }
                 }
 
                 //it is a stage approval
@@ -392,24 +483,50 @@ class RequestFormController extends Controller
                         (new NotificationController())->notifyApproval($requestForm,$user);
                         (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
-                        return response()->json(new RequestFormResource($requestForm));
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(new RequestFormResource($requestForm));
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('success','Request approved');
+                        }
 
-                    }else
-                        return response()->json([ 'message'=>'Unauthorized. Not the next to approve this request.'],403);
+                    }else {
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(['message' => 'Unauthorized. Not the next to approve this request.'], 403);
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('error','Unauthorized. Not the next to approve this request.');
+                        }
+                    }
                 }
 
-            }return
-                response()->json(['message'=>"Request cannot be approved"],405);
+            }else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request cannot be approved"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be approved');
+                }
+            }
 
-        }else
-            return response()->json(['message'=>"Request form not found"],404);
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function deny(Request $request, int $id)
     {
@@ -446,10 +563,23 @@ class RequestFormController extends Controller
                         //Run Notifications
                         (new NotificationController())->notifyDenial($requestForm,$user);
 
-                        return response()->json(new RequestFormResource($requestForm));
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(new RequestFormResource($requestForm));
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('success','Request denied');
+                        }
 
-                    }else
-                        return response()->json([ 'message'=>'Unauthorized. Does not have access rights.'],403);
+                    }else {
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(['message' => 'Unauthorized. Does not have access rights.'], 403);
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('error','Unauthorized. Does not have access rights.');
+                        }
+                    }
                 }
 
                 //it is a stage approval
@@ -462,23 +592,51 @@ class RequestFormController extends Controller
                         $requestForm->update([
                             'approvalStatus'    => 2,
                             'remarks'           => $this->addRemarks($user,$requestForm,$request->remarks),
+                            'denied_by_id'      => $user->id,
                             'editable'          => true
                         ]);
 
                         //Run Notifications
                         (new NotificationController())->notifyDenial($requestForm,$user);
 
-                        return response()->json(new RequestFormResource($requestForm));
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(new RequestFormResource($requestForm));
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('success','Request denied');
+                        }
 
-                    }else
-                        return response()->json([ 'message'=>'Unauthorized. Not the next to attend to this request.'],403);
+                    }else {
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(['message' => 'Unauthorized. Not the next to attend to this request.'], 403);
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('error','Unauthorized. Not the next to attend to this request.');
+                        }
+                    }
                 }
 
-            }return
-                response()->json(['message'=>"Request cannot be denied"],405);
+            }else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request cannot be denied"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be denied');
+                }
+            }
 
-        }else
-            return response()->json(['message'=>"Request form not found"],404);
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
     }
 
 
@@ -486,17 +644,64 @@ class RequestFormController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         //find out if the request is valid
         $requestForm=RequestForm::find($id);
 
         if(is_object($requestForm)){
-            return response()->json(new RequestFormResource($requestForm));
-        }else
-            return response()->json(['message'=>"Request form not found"],404);
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new RequestFormResource($requestForm));
+            }else{
+                //Web Response
+                return Inertia::render('RequestForms/Show',[
+                    'request' => new RequestFormResource($requestForm)
+                ]);
+            }
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::route('dashboard')->with('error','Request form not found');
+            }
+        }
+    }
+
+    public function edit(Request $request,$id)
+    {
+        $requestForm=RequestForm::find($id);
+
+        if(is_object($requestForm)){
+            //get user
+            $user=(new AppController())->getAuthUser($request);
+
+            //check if the user is the owner of the request
+            if ($requestForm->user->id != $user->id ){
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message'=>"You are not the owner of this request form"],405);
+                }else{
+                    //Web Response
+                    return Redirect::route('dashboard')->with('error','You are not the owner of this request form');
+                }
+            }
+
+
+
+            $projects = Project::orderBy('name', 'asc')->where('verified', 1)->get();
+            $vehicles = Vehicle::orderBy('vehicleRegistrationNumber', 'asc')->where('verified', 1)->get();
+            return Inertia::render('RequestForms/Edit',[
+                'projects'  => ProjectResource::collection($projects),
+                'vehicles'  => VehicleResource::collection($vehicles),
+                'request'   => new RequestFormResource($requestForm)
+            ]);
+        }else {
+            return Redirect::back()->with('error','Request form not found');
+        }
     }
 
     /**
@@ -504,7 +709,6 @@ class RequestFormController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
@@ -516,12 +720,21 @@ class RequestFormController extends Controller
             //get user
             $user=(new AppController())->getAuthUser($request);
 
+            //adjust editable
+            $approvedByUsers=$requestForm->approvedBy;
+
             //check if request can be approved, if it is in pending state
             if($requestForm->editable){
 
                 //check if the user is the owner of the request
                 if ($requestForm->user->id != $user->id ){
-                   return response()->json(['message'=>"You are not the owner of this request form"],405);
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message'=>"You are not the owner of this request form"],405);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','You are not the owner of this request form');
+                    }
                 }
 
                 // Check the type of request
@@ -533,6 +746,8 @@ class RequestFormController extends Controller
                         'total'          =>  ['required'],
                     ]);
 
+
+
                     $requestForm->update([
                         'personCollectingAdvance'       =>  $request->personCollectingAdvance,
                         'project_id'                    =>  $request->projectId,
@@ -540,11 +755,10 @@ class RequestFormController extends Controller
                         'total'                         =>  $request->total,
                         'quotes'                        =>  json_encode($request->quotes),
                         'approvalStatus'                =>  0,
-                        'editable'                      =>  false,
-                        'denied_by_id'                  => null,
+                        'editable'                      =>  $approvedByUsers->isEmpty(),
+                        'denied_by_id'                  =>  null,
                     ]);
 
-                    return response()->json(new RequestFormResource($requestForm));
 
                 } elseif($requestForm->type == "VEHICLE_MAINTENANCE" ){
 
@@ -569,11 +783,9 @@ class RequestFormController extends Controller
                         'total'                         =>  $request->total,
                         'quotes'                        =>  json_encode($request->quotes),
                         'approvalStatus'                =>  0,
-                        'editable'                      =>  false,
+                        'editable'                      =>  $approvedByUsers->isEmpty(),
                         'denied_by_id'                  => null,
                     ]);
-
-                    return response()->json(new RequestFormResource($requestForm));
 
                 } elseif($requestForm->type == "FUEL" ){
 
@@ -605,31 +817,123 @@ class RequestFormController extends Controller
                         'lastRefillMileageCovered'      =>  $vehicle->lastRefillMileageCovered,
                         'quotes'                        =>  json_encode($request->quotes),
                         'approvalStatus'                =>  0,
-                        'editable'                      =>  false,
+                        'editable'                      =>  $approvedByUsers->isEmpty(),
                         'denied_by_id'                  =>  null,
                     ]);
 
-                    return response()->json(new RequestFormResource($requestForm));
+                }else {
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message' => "Request form type unknown"], 422);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','Request form type unknown');
+                    }
+                }
+            }else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request cannot be edited"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be edited');
+                }
+            }
 
-                }else
-                    return response()->json(['message'=>"Request form type unknown"],422);
+        }else {
+            {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request form not found"], 404);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request form not found');
+                }
+            }
+        }
 
-            }else
-                return response()->json(['message'=>"Request cannot be edited"],405);
-
-        }else
-            return response()->json(['message'=>"Request form not found"],404);
+        if ((new AppController())->isApi($request)) {
+            //API Response
+            return response()->json(new RequestFormResource($requestForm));
+        }else{
+            //Web Response
+            return Redirect::route('request-forms.show',['id'=>$requestForm->id]);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
-        //
+        //find out if the request is valid
+        $requestForm=RequestForm::find($id);
+
+        if(is_object($requestForm)){
+/*
+            For force delete
+            $quotes=json_decode($request->quotes);
+            if (count($quotes)>0){
+                foreach ($quotes as $quote){
+                    if(file_exists($quote))
+                        Storage::disk("public_uploads")->delete($quote);
+                }
+            }
+*/
+
+            $requestForm->delete();
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message'=>'Project has been deleted']);
+            }else{
+                //Web Response
+                return Redirect::route('dashboard')->with('success','Request has been deleted');
+            }
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
+    }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     */
+    public function discard(Request $request,$id)
+    {
+        //find out if the request is valid
+        $requestForm=RequestForm::find($id);
+
+        if(is_object($requestForm)){
+
+            $requestForm->update([
+                'approvalStatus'    => 5,
+            ]);
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message'=>'Project has been discarded']);
+            }else{
+                //Web Response
+                return Redirect::back()->with('success','Request has been discarded');
+            }
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
     }
 
     private function addRemarks($user, $requestForm, $newRemarks){
@@ -675,18 +979,51 @@ class RequestFormController extends Controller
                     (new NotificationController())->notifyUser($requestForm,"INITIATED");
                     (new NotificationController())->notifyFinance($requestForm,"WAITING_RECONCILE");
 
-                    return response()->json(new RequestFormResource($requestForm));
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(new RequestFormResource($requestForm));
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('success','Request initiated');
+                    }
 
-                }else
-                    return response()->json(['message'=>"Request is already initiated "],405);
+                }else {
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message' => "Request is already initiated "], 405);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','Request is already initiated');
+                    }
+                }
 
-            }elseif($requestForm->approvalStatus == 0)
-                return response()->json(['message'=>"Request is still pending"],405);
+            }elseif($requestForm->approvalStatus == 0) {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request is still pending"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request is still pending');
+                }
 
-            else
-                return response()->json(['message'=>"Request cannot be initiated"],405);
-        }else
-            return response()->json(['message'=>"Request form not found"],404);
+            } else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request cannot be initiated"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be initiated');
+                }
+            }
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
 
     }
 
@@ -703,9 +1040,9 @@ class RequestFormController extends Controller
                     if($requestForm->type=="FUEL"){
 
                         $request->validate([
-                            'lastRefillDate'            =>  'required',
-                            'lastRefillFuelReceived'    =>  'required',
-                            'lastRefillMileageCovered'  =>  'required',
+                            'lastRefillDate'            =>  ['required'],
+                            'lastRefillFuelReceived'    =>  ['required','numeric'],
+                            'lastRefillMileageCovered'  =>  ['required','numeric'],
                         ]);
 
                         $vehicle=Vehicle::find($requestForm->vehicle->id);
@@ -732,18 +1069,53 @@ class RequestFormController extends Controller
 
                     (new NotificationController())->notifyUser($requestForm,"RECONCILED");
 
-                    return response()->json(new RequestFormResource($requestForm));
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(new RequestFormResource($requestForm));
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('success','Request reconciled');
+                    }
 
-                }else
-                    return response()->json(['message'=>"Request is already reconciled "],405);
+                }else {
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message' => "Request is already reconciled"], 405);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','Request is already reconciled');
+                    }
+                }
 
-            }elseif($requestForm->approvalStatus == 0)
-                return response()->json(['message'=>"Request is still pending"],405);
-            else
-                return response()->json(['message'=>"Request cannot be reconciled"],405);
+            }elseif($requestForm->approvalStatus == 0) {
 
-        }else
-            return response()->json(['message'=>"Request form not found"],404);
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request is still pending"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be reconciled');
+                }
+
+            } else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request cannot be reconciled"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be reconciled');
+                }
+            }
+
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
 
     }
 }

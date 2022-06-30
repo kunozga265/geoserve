@@ -23,14 +23,24 @@ Route::group(['prefix'=>'1.0.0'],function (){
     //Unauthenticated Routes
     Route::post("/users/login",[UserController::class,'login']);
     Route::post("/users/register",[UserController::class,'register']);
+    Route::get("/projects/create",[
+        ProjectController::class,'create'
+    ]);
+
+    Route::post("/upload",[
+        "uses" => "App\Http\Controllers\AppController@uploadFile",
+        'roles' =>['employee','administrator']
+    ]);
+
+    Route::post("/upload/delete",[
+        "uses" => "App\Http\Controllers\AppController@removeFile",
+        'roles' =>['employee','administrator']
+    ]);
 
     //Authenticated Routes
     Route::group(["middleware"=>["auth:sanctum","roles"]],function (){
 
-        Route::post("/upload",[
-            "uses" => "App\Http\Controllers\AppController@uploadFile",
-            'roles' =>['employee','administrator']
-        ]);
+
 
         Route::group(['prefix'=>'positions'],function (){
             Route::get("/",[PositionController::class,'index']);
