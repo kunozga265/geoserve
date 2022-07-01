@@ -72,20 +72,39 @@ class RequestFormController extends Controller
         $unverifiedProjects=Project::where('verified',0)->get();
 
 
-        return Inertia::render('Dashboard',[
-            'toApprove'     => RequestFormResource::collection($toApprove),
-            'active'        => RequestFormResource::collection($active),
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json([
+                'toApprove'     => RequestFormResource::collection($toApprove),
+                'active'        => RequestFormResource::collection($active),
 
-            //counts
-            'awaitingApprovalCount'         => $awaitingApprovalCount,
-            'awaitingInitiationCount'       => $awaitingInitiationCount,
-            'awaitingReconciliationCount'   => $awaitingReconciliationCount,
-            'activeCount'                   => $activeCount,
-            'totalCount'                    => $totalCount,
-            'unverifiedUsersCount'          => $unverifiedUsers->count(),
-            'unverifiedVehiclesCount'       => $unverifiedVehicles->count(),
-            'unverifiedProjectsCount'       => $unverifiedProjects->count(),
-        ]);
+                //counts
+                'awaitingApprovalCount'         => $awaitingApprovalCount,
+                'awaitingInitiationCount'       => $awaitingInitiationCount,
+                'awaitingReconciliationCount'   => $awaitingReconciliationCount,
+                'activeCount'                   => $activeCount,
+                'totalCount'                    => $totalCount,
+                'unverifiedUsersCount'          => $unverifiedUsers->count(),
+                'unverifiedVehiclesCount'       => $unverifiedVehicles->count(),
+                'unverifiedProjectsCount'       => $unverifiedProjects->count(),
+            ]);
+        else{
+            //Web Response
+            return Inertia::render('Dashboard',[
+                'toApprove'     => RequestFormResource::collection($toApprove),
+                'active'        => RequestFormResource::collection($active),
+
+                //counts
+                'awaitingApprovalCount'         => $awaitingApprovalCount,
+                'awaitingInitiationCount'       => $awaitingInitiationCount,
+                'awaitingReconciliationCount'   => $awaitingReconciliationCount,
+                'activeCount'                   => $activeCount,
+                'totalCount'                    => $totalCount,
+                'unverifiedUsersCount'          => $unverifiedUsers->count(),
+                'unverifiedVehiclesCount'       => $unverifiedVehicles->count(),
+                'unverifiedProjectsCount'       => $unverifiedProjects->count(),
+            ]);
+        }
     }
 
     /**
@@ -951,7 +970,7 @@ class RequestFormController extends Controller
 
             if ((new AppController())->isApi($request)) {
                 //API Response
-                return response()->json(['message'=>'Project has been discarded']);
+                return response()->json(new RequestFormResource($requestForm));
             }else{
                 //Web Response
                 return Redirect::back()->with('success','Request has been discarded');
