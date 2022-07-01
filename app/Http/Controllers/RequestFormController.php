@@ -32,11 +32,12 @@ class RequestFormController extends Controller
         //get user
         $user=(new AppController())->getAuthUser($request);
 
-        if($user->hasRole('management') || $user->hasRole('administrator')){
+/*        if($user->hasRole('management') || $user->hasRole('administrator')){
 //            $active=RequestForm::orderBy('dateRequested','desc')->where('approvalStatus','<',4)->get();
             $active=[];
         }else
-            $active = RequestForm::where('user_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $active = RequestForm::where('user_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();*/
+        $active = RequestForm::where('user_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
 
         if($user->hasRole('management')){
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
