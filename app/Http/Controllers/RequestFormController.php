@@ -38,23 +38,53 @@ class RequestFormController extends Controller
         }else
             $active = RequestForm::where('user_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();*/
         $active = RequestForm::where('user_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+        $activeCount=$active->count();
+
+        $awaitingInitiationCount=0;
+        $awaitingReconciliationCount=0;
 
         if($user->hasRole('management')){
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
+            $awaitingApprovalCount=$toApprove->count();
         } elseif($user->hasRole('accountant')){
+
             $toReconcile=RequestForm::where('approvalStatus',3)->orderBy('dateRequested','desc')->get();
             $toInitiate=RequestForm::where('approvalStatus',1)->orderBy('dateRequested','desc')->get();
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
+
+            $awaitingApprovalCount=$toApprove->count();
+            $awaitingInitiationCount=$toInitiate->count();
+            $awaitingReconciliationCount=$toReconcile->count();
 
             //Merge
             $toApprove=$toApprove->merge($toInitiate);
             $toApprove=$toApprove->merge($toReconcile);
         }else{
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
+            $awaitingApprovalCount=$toApprove->count();
         }
+
+        $totalCount=$toApprove->count()+$active->count();
+
+
+        $unverifiedUsers=(new AppController())->getRoleUsers('unverified');
+        $unverifiedVehicles=Vehicle::where('verified',0)->get();
+        $unverifiedProjects=Project::where('verified',0)->get();
+
+
         return Inertia::render('Dashboard',[
             'toApprove'     => RequestFormResource::collection($toApprove),
             'active'        => RequestFormResource::collection($active),
+
+            //counts
+            'awaitingApprovalCount'         => $awaitingApprovalCount,
+            'awaitingInitiationCount'       => $awaitingInitiationCount,
+            'awaitingReconciliationCount'   => $awaitingReconciliationCount,
+            'activeCount'                   => $activeCount,
+            'totalCount'                    => $totalCount,
+            'unverifiedUsersCount'          => $unverifiedUsers->count(),
+            'unverifiedVehiclesCount'       => $unverifiedVehicles->count(),
+            'unverifiedProjectsCount'       => $unverifiedProjects->count(),
         ]);
     }
 

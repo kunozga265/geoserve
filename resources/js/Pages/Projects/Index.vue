@@ -44,7 +44,7 @@
                                     <div class="name">{{ project.name }}</div>
                                     <div class="position">{{ project.site }}</div>
                                 </div>
-                                <div v-if="checkRole($page.props.auth.data,'administrator')" class="">
+                                <div v-if="checkRole($page.props.auth.data,'management')" class="">
                                     <jet-button>
                                         Verify
                                     </jet-button>

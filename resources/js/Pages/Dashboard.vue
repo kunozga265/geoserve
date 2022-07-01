@@ -39,11 +39,11 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            <div class="card">
+                            <div class="card" v-if="awaitingApprovalCount>0">
                                 <div class="flex justify-start items-center">
                                     <div class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((awaitingApprovalCount/totalCount)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -54,15 +54,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Awaiting Approval</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ awaitingApprovalCount }} {{ awaitingApprovalCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
+                            <div class="card" v-if="awaitingInitiationCount>0">
                                 <div class="flex justify-start items-center">
                                     <div class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((awaitingInitiationCount/totalCount)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -73,15 +73,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Awaiting Initiation</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ awaitingInitiationCount }} {{ awaitingInitiationCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
+                            <div class="card" v-if="awaitingReconciliationCount>0">
                                 <div class="flex justify-start items-center">
                                     <div class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((awaitingReconciliationCount/totalCount)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -92,15 +92,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Awaiting Reconciliation</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ awaitingReconciliationCount }} {{ awaitingReconciliationCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
+                            <div class="card" v-if="activeCount>0">
                                 <div class="flex justify-start items-center">
                                     <div class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((activeCount/totalCount)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -111,40 +111,40 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Active</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ activeCount }} {{ activeCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
+                            <div class="card" v-if="unverifiedUsersCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
                                 <div class="flex justify-start items-center">
                                     <div class="ml-3 mr-1 relative">
                                         <i class="mdi mdi-account-supervisor-circle" style="font-size: 32px; color:#eab308"></i>
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Unverified Users</div>
-                                        <div class="text-sm text-gray-400">4 Users</div>
+                                        <div class="text-sm text-gray-400">{{unverifiedUsersCount}} {{unverifiedUsersCount==1?'User':'Users'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
+                            <div class="card" v-if="unverifiedProjectsCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
                                 <div class="flex justify-start items-center">
                                     <div class="ml-3 mr-1 relative">
                                         <i class="mdi mdi-home-group" style="font-size: 32px; color:#eab308"></i>
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Unverified Projects</div>
-                                        <div class="text-sm text-gray-400">4 Projects</div>
+                                        <div class="text-sm text-gray-400">{{unverifiedProjectsCount}} {{unverifiedProjectsCount==1?'Project':'Projects'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
+                            <div class="card" v-if="unverifiedVehiclesCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
                                 <div class="flex justify-start items-center">
                                     <div class="ml-3 mr-1 relative">
                                         <i class="mdi mdi-car-multiple" style="font-size: 32px; color:#eab308"></i>
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Unverified Vehicles</div>
-                                        <div class="text-sm text-gray-400">4 Vehicles</div>
+                                        <div class="text-sm text-gray-400">{{unverifiedVehiclesCount}} {{unverifiedVehiclesCount==1?'Vehicle':'Vehicles'}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +198,18 @@
     import Request from "@/Components/Request";
 
     export default {
-        props:['toApprove','active'],
+        props:[
+            'toApprove',
+            'active',
+            'awaitingApprovalCount',
+            'awaitingInitiationCount',
+            'awaitingReconciliationCount',
+            'activeCount',
+            'totalCount',
+            'unverifiedUsersCount',
+            'unverifiedVehiclesCount',
+            'unverifiedProjectsCount',
+        ],
         components: {
             AppLayout,
             DoughnutChart,
@@ -220,25 +231,25 @@
               },
               awaitingApprovalData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.awaitingApprovalCount, (this.totalCount - this.awaitingApprovalCount)],
                       backgroundColor: ['#eab308','#e3ebf6'],
                   }],
               },
               awaitingInitiationData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.awaitingInitiationCount, (this.totalCount - this.awaitingInitiationCount)],
                       backgroundColor: ['#22c55e','#e3ebf6'],
                   }],
               },
               awaitingReconciliationData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.awaitingReconciliationCount, (this.totalCount - this.awaitingReconciliationCount)],
                       backgroundColor: ['#22c55e','#e3ebf6'],
                   }],
               },
               activeData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.activeCount, (this.totalCount - this.activeCount)],
                       backgroundColor: ['#1a56db','#e3ebf6'],
                   }],
               },

@@ -96,7 +96,7 @@ class PositionTableSeeder extends Seeder
         ]);
 
         Position::create([
-            "title"             =>  "Operations and Business Development Specialist",
+            "title"             =>  "Operations and Bus Dev Specialist",
             "grade_id"          =>  3,
             "approvalStages"    =>  json_encode([]),
             "state"             =>  "Permanent",

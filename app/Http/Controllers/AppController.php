@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RequestForm;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -154,5 +155,11 @@ class AppController extends Controller
         //get cookie object
         $CSRF_TOKEN=$request->cookie();
         return count($CSRF_TOKEN) == 0;
+    }
+
+    public function getRoleUsers($name)
+    {
+        $role=Role::where('name',$name)->first();
+        return $role->users;
     }
 }
