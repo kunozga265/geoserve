@@ -402,7 +402,11 @@
                 for (let x in this.form.information){
                     currentTotal=parseFloat(this.form.information[x].quantity * this.form.information[x].unitCost)
                     totalCost+=currentTotal
-                    this.form.information[x].totalCost=currentTotal.toFixed(2)
+                    this.form.information[x].totalCost=parseFloat(currentTotal.toFixed(2))
+
+                    //convert to numbers
+                    this.form.information[x].quantity=parseFloat(this.form.information[x].quantity)
+                    this.form.information[x].unitCost=parseFloat(this.form.information[x].unitCost)
                 }
                 return parseFloat(totalCost.toFixed(2))
             },
@@ -492,9 +496,9 @@
                 this.form.information.push({
                     "details":'',
                     "units":'',
-                    "quantity":'',
-                    "unitCost":'',
-                    "totalCost":'',
+                    "quantity":0,
+                    "unitCost":0,
+                    "totalCost":0,
                 })
             },
             removeRecord(index){
