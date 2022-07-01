@@ -40,7 +40,9 @@ Route::group(['prefix'=>'1.0.0'],function (){
     //Authenticated Routes
     Route::group(["middleware"=>["auth:sanctum","roles"]],function (){
 
-
+        Route::get("/dashboard",[
+            "uses" => "App\Http\Controllers\RequestFormController@dashboard",
+        ]);
 
         Route::group(['prefix'=>'positions'],function (){
             Route::get("/",[PositionController::class,'index']);
@@ -60,6 +62,11 @@ Route::group(['prefix'=>'1.0.0'],function (){
 
             Route::post("/disable/{id}",[
                 "uses" => "App\Http\Controllers\UserController@disable",
+                'roles' =>['management']
+            ]);
+
+            Route::post("/disable/{id}",[
+                "uses" => "App\Http\Controllers\UserController@discard",
                 'roles' =>['management']
             ]);
         });
@@ -120,6 +127,16 @@ Route::group(['prefix'=>'1.0.0'],function (){
             Route::post("/reconcile/{id}",[
                 "uses" => "App\Http\Controllers\RequestFormController@reconcile",
                 'roles' =>['accountant']
+            ]);
+
+            Route::delete('/delete/{id}', [
+                "uses"  => "App\Http\Controllers\RequestFormController@destroy",
+                'roles' =>['employee','management']
+            ]);
+
+            Route::delete('/discard/{id}', [
+                "uses"  => "App\Http\Controllers\RequestFormController@discard",
+                'roles' =>['employee','management']
             ]);
 
         });
