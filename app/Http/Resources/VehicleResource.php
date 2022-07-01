@@ -22,7 +22,7 @@ class VehicleResource extends JsonResource
             "lastRefillDate"                =>  $this->lastRefillDate,
             "lastRefillFuelReceived"        =>  $this->lastRefillFuelReceived,
             "lastRefillMileageCovered"      =>  $this->lastRefillMileageCovered,
-            "verified"                      =>  $this->verified,
+            "verified"                      =>  intval($this->verified),
         ];
     }
 }

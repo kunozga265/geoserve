@@ -14,6 +14,12 @@ class ProjectResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            "id"                            =>  $this->id,
+            "name"                          =>  $this->name,
+            "client"                        =>  $this->client,
+            "site"                          =>  $this->site,
+            "verified"                      =>  intval($this->verified),
+        ];
     }
 }
