@@ -365,7 +365,7 @@
           }
         },
         created(){
-            if(this.request.data.type === "CASH" || this.request.data.type === "MATERIALS") {
+            if(this.request.data.type === "CASH" || this.request.data.type === "MATERIALS" && this.request.data.project) {
                 this.projectIndex = (this.projects.data).map(function (e) {
                     return e.name;
                 }).indexOf(this.request.data.project.name)
