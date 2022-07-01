@@ -110,20 +110,116 @@ class RequestFormController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function approved(Request $request)
     {
         //get user
         $user=(new AppController())->getAuthUser($request);
         if($user->hasRole('management')){
-            $approved=RequestForm::where('approval_by_id',$user->id)->orderBy('dateRequested','desc')->get();
-            return response()->json(RequestFormResource::collection($approved));
+            $totalRequests=RequestForm::where('approval_by_id',$user->id)->count();
+
+            //For Pie Chart
+            $cashRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('type','CASH')->count();
+            $materialsRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus',0)->count();
+            $deniedRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus',2)->count();
+            $closedRequestsCount=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+
         }else{
-            return response()->json(RequestFormResource::collection($user->approvedRequests()->orderBy('dateRequested','desc')->get()));
+            $totalRequests=$user->approvedRequests->count();
+
+            //For Pie Chart
+            $cashRequestsCount=$user->approvedRequests()->where('type','CASH')->count();
+            $materialsRequestsCount=$user->approvedRequests()->where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=$user->approvedRequests()->where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=$user->approvedRequests()->where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=$user->approvedRequests()->where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=$user->approvedRequests()->where('approvalStatus',0)->count();
+            $deniedRequestsCount=$user->approvedRequests()->where('approvalStatus',2)->count();
+            $closedRequestsCount=$user->approvedRequests()->where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=$user->approvedRequests()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$user->approvedRequests()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+        }
+        $response=[
+            'totalRequests'                     => $totalRequests,
+            'cashRequestsCount'                 => $cashRequestsCount,
+            'materialsRequestsCount'            => $materialsRequestsCount,
+            'vehicleMaintenanceRequestsCount'   => $vehicleMaintenanceRequestsCount,
+            'fuelRequestsCount'                 => $fuelRequestsCount,
+            'approvedRequestsCount'             => $approvedRequestsCount,
+            'pendingRequestsCount'              => $pendingRequestsCount,
+            'deniedRequestsCount'               => $deniedRequestsCount,
+            'closedRequestsCount'               => $closedRequestsCount,
+            'activeRequests'                    => RequestFormResource::collection($activeRequests),
+            'closedRequests'                    => RequestFormResource::collection($closedRequests),
+        ];
+
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json($response);
+        else{
+            //Web Response
+            return Inertia::render('Approved',$response);
         }
     }
 
+    public function finance(Request $request)
+    {
+        //get user
+        $user=(new AppController())->getAuthUser($request);
+
+        //Requests section
+        $totalRequests=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+
+        //For Pie Chart
+        $cashRequestsCount=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->where('type','CASH')->count();
+        $materialsRequestsCount=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->where('type','MATERIALS')->count();
+        $vehicleMaintenanceRequestsCount=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->where('type','VEHICLE_MAINTENANCE')->count();
+        $fuelRequestsCount=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->where('type','FUEL')->count();
+
+        $awaitingInitiation=RequestForm::where('approvalStatus',1)->get();
+        $awaitingReconciliation=RequestForm::where('approvalStatus',3)->get();
+        $reconciled=RequestForm::where('approvalStatus',4)->get();
+
+        $awaitingInitiationCount=$awaitingInitiation->count();
+        $awaitingReconciliationCount=$awaitingReconciliation->count();
+        $reconciledCount=$reconciled->count();
+
+        $response=[
+            'totalRequests'                     => $totalRequests,
+            'cashRequestsCount'                 => $cashRequestsCount,
+            'materialsRequestsCount'            => $materialsRequestsCount,
+            'vehicleMaintenanceRequestsCount'   => $vehicleMaintenanceRequestsCount,
+            'fuelRequestsCount'                 => $fuelRequestsCount,
+            'awaitingInitiationCount'           => $awaitingInitiationCount,
+            'awaitingReconciliationCount'       => $awaitingReconciliationCount,
+            'reconciledCount'                   => $reconciledCount,
+            'awaitingInitiation'                => RequestFormResource::collection($awaitingInitiation),
+            'awaitingReconciliation'            => RequestFormResource::collection($awaitingReconciliation),
+            'reconciled'                        => RequestFormResource::collection($reconciled),
+        ];
+
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json($response);
+        else{
+            //Web Response
+            return Inertia::render('Finance',$response);
+        }
+    }
     /**
      * Display a listing of the resource.
      *
@@ -153,11 +249,6 @@ class RequestFormController extends Controller
         ]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
         //get user
@@ -166,11 +257,64 @@ class RequestFormController extends Controller
         //check role
         if($user->hasRole('management') || $user->hasRole('administrator')){
             //Should they get only those approved by management or every single request form?
-            $requestForms=RequestForm::orderBy('dateRequested','desc')->get();
-            return response()->json(RequestFormResource::collection($requestForms));
+
+            $totalRequests=RequestForm::all()->count();
+
+            //For Pie Chart
+            $cashRequestsCount=RequestForm::where('type','CASH')->count();
+            $materialsRequestsCount=RequestForm::where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=RequestForm::where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=RequestForm::where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=RequestForm::where('approvalStatus',0)->count();
+            $deniedRequestsCount=RequestForm::where('approvalStatus',2)->count();
+            $closedRequestsCount=RequestForm::where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=RequestForm::where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=RequestForm::where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
         }else {
-            $requestForms = RequestForm::where('user_id',$user->id)->orderBy('dateRequested','desc')->get();
-            return response()->json(RequestFormResource::collection($requestForms));
+            $totalRequests=$user->requestForms->count();
+
+            //For Pie Chart
+            $cashRequestsCount=$user->requestForms()->where('type','CASH')->count();
+            $materialsRequestsCount=$user->requestForms()->where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=$user->requestForms()->where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=$user->requestForms()->where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=$user->requestForms()->where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=$user->requestForms()->where('approvalStatus',0)->count();
+            $deniedRequestsCount=$user->requestForms()->where('approvalStatus',2)->count();
+            $closedRequestsCount=$user->requestForms()->where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=$user->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$user->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+        }
+
+        $response=[
+            'totalRequests'                     => $totalRequests,
+            'cashRequestsCount'                 => $cashRequestsCount,
+            'materialsRequestsCount'            => $materialsRequestsCount,
+            'vehicleMaintenanceRequestsCount'   => $vehicleMaintenanceRequestsCount,
+            'fuelRequestsCount'                 => $fuelRequestsCount,
+            'approvedRequestsCount'             => $approvedRequestsCount,
+            'pendingRequestsCount'              => $pendingRequestsCount,
+            'deniedRequestsCount'               => $deniedRequestsCount,
+            'closedRequestsCount'               => $closedRequestsCount,
+            'activeRequests'                    => RequestFormResource::collection($activeRequests),
+            'closedRequests'                    => RequestFormResource::collection($closedRequests),
+        ];
+
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json($response);
+        else{
+            //Web Response
+            return Inertia::render('Index',$response);
         }
     }
 
@@ -1167,5 +1311,10 @@ class RequestFormController extends Controller
             }
         }
 
+    }
+
+    private function getRequestForms($status){
+        $requestForms=RequestForm::where('approvalStatus',$status)->get();
+        return $requestForms;
     }
 }

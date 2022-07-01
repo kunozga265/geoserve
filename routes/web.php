@@ -31,15 +31,15 @@ Route::group(['middleware'=>['auth:sanctum', 'verified']],function (){
     ])->name('dashboard');
 
     Route::get('/index', [
-        "uses"  => "App\Http\Controllers\Web\PageController@index",
+        "uses"  => "App\Http\Controllers\RequestFormController@index",
     ])->name('index');
 
     Route::get('/approved', [
-        "uses"  => "App\Http\Controllers\Web\PageController@approved",
+        "uses"  => "App\Http\Controllers\RequestFormController@approved",
     ])->name('approved');
 
     Route::get('/finance', [
-        "uses"  => "App\Http\Controllers\Web\PageController@finance",
+        "uses"  => "App\Http\Controllers\RequestFormController@finance",
     ])->name('finance');
 
 

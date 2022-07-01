@@ -32,8 +32,8 @@
                             <div class="h-64 w-64 sm:h-80 sm:w-80 mx-auto relative">
                                 <div class="pie-chart absolute font-bold flex justify-center items-center">
                                     <div class="heading">
-                                        <div class="font-bold heading-font text-center">34</div>
-                                        <div class="xl font-bold heading-font text-center">Requests</div>
+                                        <div class="font-bold heading-font text-center">{{ totalRequests }}</div>
+                                        <div class="xl font-bold heading-font text-center">{{ totalRequests==1?'Request':'Requests' }}</div>
                                     </div>
                                 </div>
                                 <PieChart
@@ -41,17 +41,15 @@
                                     :chart-data="typesData"
                                     chart-id="types"
                                     dataset-id-key="types"
-                                >
-                                    Hello world
-                                </PieChart>
+                                />
                             </div>
                         </div>
                         <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1">
                             <div class="card">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="approvedRequestsCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((approvedRequestsCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -62,15 +60,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Approved</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ approvedRequestsCount }} {{ approvedRequestsCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card ">
+                            <div class="card">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="pendingRequestsCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((pendingRequestsCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -81,15 +79,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Pending</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ pendingRequestsCount }} {{ pendingRequestsCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="deniedRequestsCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((deniedRequestsCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -100,15 +98,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Denied</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ deniedRequestsCount }} {{ deniedRequestsCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="closedRequestsCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((closedRequestsCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -119,7 +117,7 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Closed</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ closedRequestsCount }} {{ closedRequestsCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -134,114 +132,11 @@
                         </div>
                     </div>
                     <div class="page-section-content grid grid-cols-1 md:grid-cols-2">
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-car-hatchback"></i> Vehicle Maintenance Request</div>
-                                    <div class="name">Blessings Majamanda</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">400,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="approval-pending flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-alert-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Pending: Manager to approve
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-cash"></i> Cash Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">20,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="approved flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-check-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Approved: Accountant to initiate
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-gas-station"></i> Fuel Request</div>
-                                    <div class="name">Chisomo Hanjahanja</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">50,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="approved flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-check-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Approved: Accountant to reconcile
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-hammer"></i> Materials Request</div>
-                                    <div class="name">Blessings Majamanda</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">80,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="approval-pending flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-alert-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Pending: Finance and Compliance Executive to approve
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+                        <request
+                            v-for="(request,index) in activeRequests.data"
+                            :key="index"
+                            :request="request"
+                        />
                     </div>
                 </div>
                 <div class="page-section">
@@ -251,87 +146,11 @@
                         </div>
                     </div>
                     <div class="page-section-content grid grid-cols-1 md:grid-cols-2">
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-cash"></i> Cash Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">20,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="denied flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-close-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Denied by: Kunozga Mlowoka
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-car-hatchback"></i> Vehicle Maintenance Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">400,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="approval-pending flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-alert-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Pending: Manager to approve
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-car-hatchback"></i> Vehicle Maintenance Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">400,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="reconciled flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-check-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Reconciled
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+                        <request
+                            v-for="(request,index) in closedRequests.data"
+                            :key="index"
+                            :request="request"
+                        />
                     </div>
                 </div>
                 <div class="mt-4 flex flex-col items-center justify-start">
@@ -360,12 +179,27 @@
     import AppLayout from '@/Layouts/AppLayout'
     import DoughnutChart from "@/Components/Charts/DoughnutChart";
     import PieChart from "@/Components/Charts/PieChart";
+    import Request from "@/Components/Request";
 
     export default {
+        props:[
+            'totalRequests',
+            'cashRequestsCount',
+            'materialsRequestsCount',
+            'vehicleMaintenanceRequestsCount',
+            'fuelRequestsCount',
+            'approvedRequestsCount',
+            'pendingRequestsCount',
+            'deniedRequestsCount',
+            'closedRequestsCount',
+            'activeRequests',
+            'closedRequests',
+        ],
         components: {
             AppLayout,
             DoughnutChart,
-            PieChart
+            PieChart,
+            Request
         },
         data(){
           return{
@@ -381,31 +215,36 @@
               },
               approvedData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.approvedRequestsCount, (this.totalRequests - this.approvedRequestsCount)],
                       backgroundColor: ['#22c55e','#e3ebf6'],
                   }],
               },
               pendingData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.pendingRequestsCount, (this.totalRequests - this.pendingRequestsCount)],
                       backgroundColor: ['#eab308','#e3ebf6'],
                   }],
               },
               deniedData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.deniedRequestsCount, (this.totalRequests - this.deniedRequestsCount)],
                       backgroundColor: ['#ef4444','#e3ebf6'],
                   }],
               },
               completedData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.closedRequestsCount, (this.totalRequests - this.closedRequestsCount)],
                       backgroundColor: ['#303840','#e3ebf6'],
                   }],
               },
               typesData:{
                   datasets: [{
-                      data: [25, 60,45,19],
+                      data: [
+                          this.cashRequestsCount,
+                          this.materialsRequestsCount,
+                          this.vehicleMaintenanceRequestsCount,
+                          this.fuelRequestsCount
+                      ],
                       backgroundColor: ['#1a56db','#ed0b4b','#b1bbc9','#e3ebf6'],
                   }],
                   labels: ['Cash', 'Materials', 'Vehicle Maintenance', 'Fuel']
@@ -424,80 +263,5 @@
               },
           }
         },
-
-        /*created(){
-            const awaitingApproval = document.getElementById('awaitingApproval');
-            const awaitingInitiation = document.getElementById('awaitingInitiation');
-            const awaitingReconciliation = document.getElementById('awaitingReconciliation');
-            const active = document.getElementById('active');
-            const options={
-                plugins: {
-                    tooltip: {
-                        enabled: false
-                    },
-                    legend:{
-                        display:false
-                    }
-                }, cutout:20
-            };
-
-            /!* Data *!/
-            const awaitingApprovalData={
-                datasets: [{
-                    data: [20, 80],
-                    backgroundColor: ['#1a56db','#e3ebf6'],
-                }],
-            };
-
-            const awaitingInitiationData ={
-                datasets: [{
-                    data: [20, 80],
-                    backgroundColor: ['#1a56db','#e3ebf6'],
-                }],
-            }
-            const awaitingReconciliationData ={
-                datasets: [{
-                    data: [20, 80],
-                    backgroundColor: ['#1a56db','#e3ebf6'],
-                }],
-            }
-            const activeData ={
-                datasets: [{
-                    data: [20, 80],
-                    backgroundColor: ['#1a56db','#e3ebf6'],
-                }],
-            }
-
-            const myChart = new Chart(
-                awaitingApproval, {
-                    type: 'doughnut',
-                    data: awaitingApprovalData,
-                    options: options
-                });
-
-            const myChart1 = new Chart(
-                awaitingInitiation,{
-                    type: 'doughnut',
-                    data: awaitingInitiationData,
-                    options: options
-                }
-            );
-
-            const myChart2 = new Chart(
-                awaitingReconciliation,{
-                    type: 'doughnut',
-                    data: awaitingReconciliationData,
-                    options: options
-                }
-            );
-
-            const myChart3 = new Chart(
-                active,{
-                    type: 'doughnut',
-                    data: activeData,
-                    options: options
-                }
-            );
-        }*/
     }
 </script>

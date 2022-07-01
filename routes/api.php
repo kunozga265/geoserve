@@ -89,8 +89,13 @@ Route::group(['prefix'=>'1.0.0'],function (){
                 'roles' =>['employee','management']
             ]);
 
+            Route::get("/finance",[
+                "uses" => "App\Http\Controllers\RequestFormController@finance",
+                'roles' =>['employee','management']
+            ]);
+
             Route::get("/pending",[
-                "uses" => "App\Http\Controllers\RequestFormController@pending",
+                "uses" => "App\Http\Controllers\RequestFormController@dashboard",
                 'roles' =>['employee','management']
             ]);
 

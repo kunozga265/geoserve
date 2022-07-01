@@ -34,8 +34,8 @@
                             <div class="h-64 w-64 sm:h-80 sm:w-80 mx-auto relative">
                                 <div class="pie-chart absolute font-bold flex justify-center items-center">
                                     <div class="heading">
-                                        <div class="font-bold heading-font text-center">34</div>
-                                        <div class="xl font-bold heading-font text-center">Requests</div>
+                                        <div class="font-bold heading-font text-center">{{ totalRequests }}</div>
+                                        <div class="xl font-bold heading-font text-center">{{ totalRequests==1?'Request':'Requests' }}</div>
                                     </div>
                                 </div>
                                 <PieChart
@@ -49,9 +49,9 @@
                         <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:block">
                             <div class="card">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="awaitingInitiationCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((awaitingInitiationCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -62,15 +62,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Awaiting Initiation</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ awaitingInitiationCount }} {{ awaitingInitiationCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="awaitingReconciliationCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((awaitingReconciliationCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -81,15 +81,15 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Awaiting Reconciliation</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ awaitingReconciliationCount }} {{ awaitingReconciliationCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card ">
                                 <div class="flex justify-start items-center">
-                                    <div class="overview-chart relative">
+                                    <div v-if="reconciledCount>0" class="overview-chart relative">
                                         <div style="font-size:12px;" class="absolute h-full w-full font-bold flex justify-center items-center">
-                                            12%
+                                            {{ Math.floor((reconciledCount/totalRequests)*100) }}%
                                         </div>
                                         <DoughnutChart
                                             :chart-options="chartOptions"
@@ -100,7 +100,7 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="heading-font" style="font-weight: 600;">Reconciled</div>
-                                        <div class="text-sm text-gray-400">4 Requests</div>
+                                        <div class="text-sm text-gray-400">{{ reconciledCount }} {{ reconciledCount ==1?'Request':'Requests'}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -115,60 +115,11 @@
                             </div>
                         </div>
                         <div class="page-section-content">
-                            <div class="request">
-                                <div class="header justify-between items-center border-b">
-                                    <div class="">
-                                        <div>
-                                            <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                        </div>
-                                        <div class="type"><i class="mdi mdi-cash"></i> Cash Request</div>
-                                        <div class="name">Vitumbiko Mpinganjira</div>
-
-                                    </div>
-                                    <div class="flex items-center ">
-                                        <div class="currency ">MK</div>
-                                        <div class="total">20,000</div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="approved flex justify-start items-center">
-                                        <div>
-                                            <i class="mdi mdi-check-circle text-xl"></i>
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            Approved: Accountant to initiate
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="request">
-                                <div class="header justify-between items-center border-b">
-                                    <div class="">
-                                        <div>
-                                            <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                        </div>
-                                        <div class="type"><i class="mdi mdi-gas-station"></i> Fuel Request</div>
-                                        <div class="name">Chisomo Hanjahanja</div>
-
-                                    </div>
-                                    <div class="flex items-center ">
-                                        <div class="currency ">MK</div>
-                                        <div class="total">50,000</div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="approved flex justify-start items-center">
-                                        <div>
-                                            <i class="mdi mdi-check-circle text-xl"></i>
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            Approved: Accountant to initiate
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
+                            <request
+                                v-for="(request,index) in awaitingInitiation.data"
+                                :key="index"
+                                :request="request"
+                            />
                         </div>
                     </div>
                     <div class="page-section">
@@ -178,60 +129,11 @@
                             </div>
                         </div>
                         <div class="page-section-content">
-                            <div class="request">
-                                <div class="header justify-between items-center border-b">
-                                    <div class="">
-                                        <div>
-                                            <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                        </div>
-                                        <div class="type"><i class="mdi mdi-cash"></i> Cash Request</div>
-                                        <div class="name">Vitumbiko Mpinganjira</div>
-
-                                    </div>
-                                    <div class="flex items-center ">
-                                        <div class="currency ">MK</div>
-                                        <div class="total">20,000</div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="approved flex justify-start items-center">
-                                        <div>
-                                            <i class="mdi mdi-check-circle text-xl"></i>
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            Approved: Accountant to reconcile
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="request">
-                                <div class="header justify-between items-center border-b">
-                                    <div class="">
-                                        <div>
-                                            <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                        </div>
-                                        <div class="type"><i class="mdi mdi-gas-station"></i> Fuel Request</div>
-                                        <div class="name">Chisomo Hanjahanja</div>
-
-                                    </div>
-                                    <div class="flex items-center ">
-                                        <div class="currency ">MK</div>
-                                        <div class="total">50,000</div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="approved flex justify-start items-center">
-                                        <div>
-                                            <i class="mdi mdi-check-circle text-xl"></i>
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            Approved: Accountant to reconcile
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
+                            <request
+                                v-for="(request,index) in awaitingReconciliation.data"
+                                :key="index"
+                                :request="request"
+                            />
                         </div>
                     </div>
                 </div>
@@ -242,87 +144,11 @@
                         </div>
                     </div>
                     <div class="page-section-content grid grid-cols-1 md:grid-cols-2">
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-cash"></i> Cash Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">20,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="reconciled flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-close-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Reconciled
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-car-hatchback"></i> Vehicle Maintenance Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">400,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="reconciled flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-alert-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Reconciled
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="request">
-                            <div class="header justify-between items-center border-b">
-                                <div class="">
-                                    <div>
-                                        <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase"> 12 Sept, 2022</span>
-                                    </div>
-                                    <div class="type"><i class="mdi mdi-car-hatchback"></i> Vehicle Maintenance Request</div>
-                                    <div class="name">Vitumbiko Mpinganjira</div>
-
-                                </div>
-                                <div class="flex items-center ">
-                                    <div class="currency ">MK</div>
-                                    <div class="total">400,000</div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="reconciled flex justify-start items-center">
-                                    <div>
-                                        <i class="mdi mdi-check-circle text-xl"></i>
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        Reconciled
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+                        <request
+                            v-for="(request,index) in reconciled.data"
+                            :key="index"
+                            :request="request"
+                        />
                     </div>
                 </div>
                 <div class="mt-4 flex flex-col items-center justify-start">
@@ -351,12 +177,27 @@
     import AppLayout from '@/Layouts/AppLayout'
     import DoughnutChart from "@/Components/Charts/DoughnutChart";
     import PieChart from "@/Components/Charts/PieChart";
+    import Request from "@/Components/Request";
 
     export default {
+        props:[
+            'totalRequests',
+            'cashRequestsCount',
+            'materialsRequestsCount',
+            'vehicleMaintenanceRequestsCount',
+            'fuelRequestsCount',
+            'awaitingInitiationCount',
+            'awaitingReconciliationCount',
+            'reconciledCount',
+            'awaitingInitiation',
+            'awaitingReconciliation',
+            'reconciled',
+        ],
         components: {
             AppLayout,
             DoughnutChart,
-            PieChart
+            PieChart,
+            Request
         },
         data(){
           return{
@@ -372,25 +213,30 @@
               },
               awaitingInitiationData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.awaitingInitiationCount, (this.totalRequests - this.awaitingInitiationCount)],
                       backgroundColor: ['#22c55e','#e3ebf6'],
                   }],
               },
               awaitingReconcilationData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.awaitingReconciliationCount, (this.totalRequests - this.awaitingReconciliationCount)],
                       backgroundColor: ['#22c55e','#e3ebf6'],
                   }],
               },
               reconciledData:{
                   datasets: [{
-                      data: [20, 80],
+                      data: [this.reconciledCount, (this.totalRequests - this.reconciledCount)],
                       backgroundColor: ['#303840','#e3ebf6'],
                   }],
               },
               typesData:{
                   datasets: [{
-                      data: [25, 60,45,19],
+                      data: [
+                          this.cashRequestsCount,
+                          this.materialsRequestsCount,
+                          this.vehicleMaintenanceRequestsCount,
+                          this.fuelRequestsCount
+                      ],
                       backgroundColor: ['#1a56db','#ed0b4b','#b1bbc9','#e3ebf6'],
                   }],
                   labels: ['Cash', 'Materials', 'Vehicle Maintenance', 'Fuel']
