@@ -35,8 +35,14 @@
                                 <div>
                                     <i class="mdi text-xl" :class="getNotificationIcon(notification.data.type)"></i>
                                 </div>
-                                <div class="ml-3 text-sm">
-                                    {{notification.data.contents.message}}
+                                <div class="ml-3">
+                                    <div class="text-sm">
+                                        {{notification.data.contents.message}}
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        {{getDate(notification.data.date*1000,true)}}
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

@@ -19,6 +19,7 @@ class NotificationResource extends JsonResource
             'contents'      =>  json_decode($this->contents),
             'type'          =>  $this->type,
             'read'          =>  $this->read,
+            'date'          =>  $this->created_at->getTimestamp(),
 //            'user'          =>  $this->user,
 //            'date'          =>  [
 //                'formatted' =>  date('jS F, Y',$this->created_at->getTimestamp()),
