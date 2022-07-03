@@ -173,7 +173,7 @@ Route::group(['prefix'=>'1.0.0'],function (){
 
             Route::delete("/delete/{id}",[
                 "uses" => "App\Http\Controllers\ProjectController@destroy",
-                'roles' =>['administrator']
+                'roles' => ['administrator','management']
             ]);
 
         });
