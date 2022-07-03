@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\ReportResource;
 use App\Http\Resources\RequestFormResource;
 use App\Http\Resources\VehicleResource;
 use App\Models\Project;
+use App\Models\Report;
 use App\Models\RequestForm;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -32,6 +34,14 @@ class RequestFormController extends Controller
         //get user
         $user=(new AppController())->getAuthUser($request);
 
+        //get reports for the year
+        $year=date('Y');
+        $reports=Report::where('year',$year)->get();
+        $dashboardReports=[
+            'data'=>[]
+        ];
+
+
 /*        if($user->hasRole('management') || $user->hasRole('administrator')){
 //            $active=RequestForm::orderBy('dateRequested','desc')->where('approvalStatus','<',4)->get();
             $active=[];
@@ -46,6 +56,9 @@ class RequestFormController extends Controller
         if($user->hasRole('management')){
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
             $awaitingApprovalCount=$toApprove->count();
+
+            $dashboardReports=ReportResource::collection($reports);
+
         } elseif($user->hasRole('accountant')){
 
             $toReconcile=RequestForm::where('approvalStatus',3)->orderBy('dateRequested','desc')->get();
@@ -59,9 +72,27 @@ class RequestFormController extends Controller
             //Merge
             $toApprove=$toApprove->merge($toInitiate);
             $toApprove=$toApprove->merge($toReconcile);
+
+            foreach ($reports as $report){
+                $dashboardReports['data'][]=[
+                    'id'              =>  $report->id,
+                    'year'            =>  $report->year,
+                    'month'           =>  $report->month,
+                    'requestsCount'   =>  $report->requestForms()->where('user_id',$user->id)->count(),
+                ];
+            }
         }else{
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
             $awaitingApprovalCount=$toApprove->count();
+
+            foreach ($reports as $report){
+                $dashboardReports['data'][]=[
+                    'id'              =>  $report->id,
+                    'year'            =>  $report->year,
+                    'month'           =>  $report->month,
+                    'requestsCount'   =>  $report->requestForms()->where('user_id',$user->id)->count(),
+                ];
+            }
         }
 
         $totalCount=$toApprove->count()+$active->count();
@@ -75,8 +106,8 @@ class RequestFormController extends Controller
         if ((new AppController())->isApi($request))
             //API Response
             return response()->json([
-                'toApprove'     => RequestFormResource::collection($toApprove),
-                'active'        => RequestFormResource::collection($active),
+                'toApprove'                     => RequestFormResource::collection($toApprove),
+                'active'                        => RequestFormResource::collection($active),
 
                 //counts
                 'awaitingApprovalCount'         => $awaitingApprovalCount,
@@ -87,12 +118,13 @@ class RequestFormController extends Controller
                 'unverifiedUsersCount'          => $unverifiedUsers->count(),
                 'unverifiedVehiclesCount'       => $unverifiedVehicles->count(),
                 'unverifiedProjectsCount'       => $unverifiedProjects->count(),
+                'dashboardReports'              => $dashboardReports
             ]);
         else{
             //Web Response
             return Inertia::render('Dashboard',[
-                'toApprove'     => RequestFormResource::collection($toApprove),
-                'active'        => RequestFormResource::collection($active),
+                'toApprove'                     => RequestFormResource::collection($toApprove),
+                'active'                        => RequestFormResource::collection($active),
 
                 //counts
                 'awaitingApprovalCount'         => $awaitingApprovalCount,
@@ -103,6 +135,7 @@ class RequestFormController extends Controller
                 'unverifiedUsersCount'          => $unverifiedUsers->count(),
                 'unverifiedVehiclesCount'       => $unverifiedVehicles->count(),
                 'unverifiedProjectsCount'       => $unverifiedProjects->count(),
+                'dashboardReports'              => $dashboardReports
             ]);
         }
     }
@@ -390,14 +423,6 @@ class RequestFormController extends Controller
             //Run notifications
             (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
-            if ((new AppController())->isApi($request))
-                //API Response
-                return response()->json(new RequestFormResource($requestForm),201);
-            else{
-                //Web Response
-                return Redirect::route('dashboard')->with('success','Request created!');
-            }
-
         } elseif($request->type == "VEHICLE_MAINTENANCE" ){
 
         //Validate all the important attributes
@@ -455,14 +480,6 @@ class RequestFormController extends Controller
 
             //Run notifications
             (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
-
-            if ((new AppController())->isApi($request))
-                //API Response
-                return response()->json(new RequestFormResource($requestForm),201);
-            else{
-                //Web Response
-                return Redirect::route('dashboard')->with('success','Request created!');
-            }
 
     } elseif($request->type == "FUEL" ){
 
@@ -532,14 +549,6 @@ class RequestFormController extends Controller
             //Run notifications
             (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_PENDING");
 
-            if ((new AppController())->isApi($request))
-                //API Response
-                return response()->json(new RequestFormResource($requestForm),201);
-            else{
-                //Web Response
-                return Redirect::route('dashboard')->with('success','Request created!');
-            }
-
         }else {
             if ((new AppController())->isApi($request)) {
                 //API Response
@@ -548,6 +557,17 @@ class RequestFormController extends Controller
                 //Web Response
                 return Redirect::back()->with('error','Request form type unknown');
             }
+        }
+
+        $report=(new ReportController())->getCurrentReport();
+        $report->requestForms()->attach($requestForm);
+
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json(new RequestFormResource($requestForm),201);
+        else{
+            //Web Response
+            return Redirect::route('dashboard')->with('success','Request created!');
         }
     }
 

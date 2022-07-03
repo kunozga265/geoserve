@@ -3,6 +3,7 @@
 namespace App\Actions\Fortify;
 
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReportController;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -51,6 +52,10 @@ class CreateNewUser implements CreatesNewUsers
 
         //Run notifications
         (new NotificationController())->notifyManagement($user,"USER_NEW");
+
+        //Add to report
+        $report=(new ReportController())->getCurrentReport();
+        $report->users()->attach($user);
 
         return $user;
     }

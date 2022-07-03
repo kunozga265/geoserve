@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RequestFormResource;
 use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
@@ -70,6 +71,10 @@ class VehicleController extends Controller
         //Run notifications
         (new NotificationController())->notifyManagement($vehicle,"VEHICLE_NEW");
 
+        //Add to report
+        $report=(new ReportController())->getCurrentReport();
+        $report->vehicles()->attach($vehicle);
+
         if ((new AppController())->isApi($request)) {
             //API Response
             return response()->json(new VehicleResource($vehicle),201);
@@ -91,16 +96,46 @@ class VehicleController extends Controller
         $vehicle=Vehicle::find($id);
 
         if (is_object($vehicle)) {
-            if ((new AppController())->isApi($request)) {
-                //API Response
-                return response()->json(new VehicleResource($vehicle));
-            }else{
-                //Web Response
-                return Inertia::render('Vehicles/Show',[
-                    'vehicle' => new VehicleResource($vehicle)
-                ]);
-            }
+            $totalRequests=$vehicle->requestForms->count();
 
+            //For Pie Chart
+            $cashRequestsCount=$vehicle->requestForms()->where('type','CASH')->count();
+            $materialsRequestsCount=$vehicle->requestForms()->where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=$vehicle->requestForms()->where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=$vehicle->requestForms()->where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=$vehicle->requestForms()->where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=$vehicle->requestForms()->where('approvalStatus',0)->count();
+            $deniedRequestsCount=$vehicle->requestForms()->where('approvalStatus',2)->count();
+            $closedRequestsCount=$vehicle->requestForms()->where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=$vehicle->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$vehicle->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+
+            $response=[
+                'vehicle'                           => new VehicleResource($vehicle),
+                'totalRequests'                     => $totalRequests,
+                'cashRequestsCount'                 => $cashRequestsCount,
+                'materialsRequestsCount'            => $materialsRequestsCount,
+                'vehicleMaintenanceRequestsCount'   => $vehicleMaintenanceRequestsCount,
+                'fuelRequestsCount'                 => $fuelRequestsCount,
+                'approvedRequestsCount'             => $approvedRequestsCount,
+                'pendingRequestsCount'              => $pendingRequestsCount,
+                'deniedRequestsCount'               => $deniedRequestsCount,
+                'closedRequestsCount'               => $closedRequestsCount,
+                'activeRequests'                    => RequestFormResource::collection($activeRequests),
+                'closedRequests'                    => RequestFormResource::collection($closedRequests),
+            ];
+
+            if ((new AppController())->isApi($request))
+                //API Response
+                return response()->json($response);
+            else{
+                //Web Response
+                return Inertia::render('Vehicles/Show',$response);
+            }
         }
         else {
             if ((new AppController())->isApi($request)) {

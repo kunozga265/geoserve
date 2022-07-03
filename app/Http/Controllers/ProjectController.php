@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\RequestFormResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -64,6 +65,10 @@ class ProjectController extends Controller
         //Run notifications
         (new NotificationController())->notifyManagement($project,"PROJECT_NEW");
 
+        //Add to report
+        $report=(new ReportController())->getCurrentReport();
+        $report->projects()->attach($project);
+
         if ((new AppController())->isApi($request)) {
             //API Response
             return response()->json(new ProjectResource($project));
@@ -83,14 +88,45 @@ class ProjectController extends Controller
         $project=Project::find($id);
 
         if (is_object($project)) {
-            if ((new AppController())->isApi($request)) {
+            $totalRequests=$project->requestForms->count();
+
+            //For Pie Chart
+            $cashRequestsCount=$project->requestForms()->where('type','CASH')->count();
+            $materialsRequestsCount=$project->requestForms()->where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=$project->requestForms()->where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=$project->requestForms()->where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=$project->requestForms()->where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=$project->requestForms()->where('approvalStatus',0)->count();
+            $deniedRequestsCount=$project->requestForms()->where('approvalStatus',2)->count();
+            $closedRequestsCount=$project->requestForms()->where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=$project->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$project->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+
+            $response=[
+                'project'                           => new ProjectResource($project),
+                'totalRequests'                     => $totalRequests,
+                'cashRequestsCount'                 => $cashRequestsCount,
+                'materialsRequestsCount'            => $materialsRequestsCount,
+                'vehicleMaintenanceRequestsCount'   => $vehicleMaintenanceRequestsCount,
+                'fuelRequestsCount'                 => $fuelRequestsCount,
+                'approvedRequestsCount'             => $approvedRequestsCount,
+                'pendingRequestsCount'              => $pendingRequestsCount,
+                'deniedRequestsCount'               => $deniedRequestsCount,
+                'closedRequestsCount'               => $closedRequestsCount,
+                'activeRequests'                    => RequestFormResource::collection($activeRequests),
+                'closedRequests'                    => RequestFormResource::collection($closedRequests),
+            ];
+
+            if ((new AppController())->isApi($request))
                 //API Response
-                return response()->json(new ProjectResource($project));
-            }else{
+                return response()->json($response);
+            else{
                 //Web Response
-                return Inertia::render('Projects/Show',[
-                    'project' => new ProjectResource($project)
-                ]);
+                return Inertia::render('Projects/Show',$response);
             }
         }
         else {

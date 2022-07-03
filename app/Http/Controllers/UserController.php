@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PositionResource;
+use App\Http\Resources\RequestFormResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Jobs\SendMail;
@@ -85,6 +86,10 @@ class UserController extends Controller
         //Run notifications
         (new NotificationController())->notifyManagement($user,"USER_NEW");
 
+        //Add to report
+        $report=(new ReportController())->getCurrentReport();
+        $report->users()->attach($report);
+
         return response()->json([
             'user'  =>  new UserResource($user),
             'token' =>  $token
@@ -129,6 +134,7 @@ class UserController extends Controller
 
                 //Run notifications
                 (new NotificationController())->notifyUser($user,"USER_VERIFIED");
+
 
                 if ((new AppController())->isApi($request)) {
                     //API Response
@@ -301,16 +307,46 @@ class UserController extends Controller
         $user=User::find($id);
 
         if (is_object($user)) {
-            if ((new AppController())->isApi($request)) {
-                //API Response
-                return response()->json(new UserResource($user));
-            }else{
-                //Web Response
-                return Inertia::render('Users/Show',[
-                    'user' =>  new UserResource($user)
-                ]);
-            }
+            $totalRequests=$user->requestForms->count();
 
+            //For Pie Chart
+            $cashRequestsCount=$user->requestForms()->where('type','CASH')->count();
+            $materialsRequestsCount=$user->requestForms()->where('type','MATERIALS')->count();
+            $vehicleMaintenanceRequestsCount=$user->requestForms()->where('type','VEHICLE_MAINTENANCE')->count();
+            $fuelRequestsCount=$user->requestForms()->where('type','FUEL')->count();
+
+            //Page Info
+            $approvedRequestsCount=$user->requestForms()->where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+            $pendingRequestsCount=$user->requestForms()->where('approvalStatus',0)->count();
+            $deniedRequestsCount=$user->requestForms()->where('approvalStatus',2)->count();
+            $closedRequestsCount=$user->requestForms()->where('approvalStatus','>',3)->count();
+
+            //Requests section
+            $activeRequests=$user->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$user->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+
+            $response=[
+                'user'                              =>  new UserResource($user),
+                'totalRequests'                     => $totalRequests,
+                'cashRequestsCount'                 => $cashRequestsCount,
+                'materialsRequestsCount'            => $materialsRequestsCount,
+                'vehicleMaintenanceRequestsCount'   => $vehicleMaintenanceRequestsCount,
+                'fuelRequestsCount'                 => $fuelRequestsCount,
+                'approvedRequestsCount'             => $approvedRequestsCount,
+                'pendingRequestsCount'              => $pendingRequestsCount,
+                'deniedRequestsCount'               => $deniedRequestsCount,
+                'closedRequestsCount'               => $closedRequestsCount,
+                'activeRequests'                    => RequestFormResource::collection($activeRequests),
+                'closedRequests'                    => RequestFormResource::collection($closedRequests),
+            ];
+
+            if ((new AppController())->isApi($request))
+                //API Response
+                return response()->json($response);
+            else{
+                //Web Response
+                return Inertia::render('Users/Show',$response);
+            }
         }
         else {
             if ((new AppController())->isApi($request)) {
