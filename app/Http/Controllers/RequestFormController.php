@@ -411,7 +411,7 @@ class RequestFormController extends Controller
                 'currentStage'                  =>  $stagesCount==0?null:1,
                 'totalStages'                   =>  $stagesCount==0?null:$stagesCount,
                 'stages'                        =>  json_encode($stages),
-                'quotes'                        =>  json_encode($request->quotes),
+                'quotes'                        =>  json_encode($request->quotes ?? []),
                 'remarks'                       =>  json_encode([]),
                 'receipts'                      =>  json_encode([]),
 
@@ -469,7 +469,7 @@ class RequestFormController extends Controller
             'currentStage'                  =>  $stagesCount==0?null:1,
             'totalStages'                   =>  $stagesCount==0?null:$stagesCount,
             'stages'                        =>  json_encode($stages),
-            'quotes'                        =>  json_encode($request->quotes),
+            'quotes'                        =>  json_encode($request->quotes ?? []),
             'remarks'                       =>  json_encode([]),
             'receipts'                      =>  json_encode([]),
 
@@ -537,7 +537,7 @@ class RequestFormController extends Controller
                 'currentStage'                  =>  $stagesCount==0?null:1,
                 'totalStages'                   =>  $stagesCount==0?null:$stagesCount,
                 'stages'                        =>  json_encode($stages),
-                'quotes'                        =>  json_encode($request->quotes),
+                'quotes'                        =>  json_encode($request->quotes ?? []),
                 'remarks'                       =>  json_encode([]),
                 'receipts'                      =>  json_encode([]),
 
@@ -967,7 +967,7 @@ class RequestFormController extends Controller
                         'project_id'                    =>  $request->projectId,
                         'information'                   =>  json_encode($request->information),
                         'total'                         =>  $request->total,
-                        'quotes'                        =>  json_encode($request->quotes),
+                        'quotes'                        =>  json_encode($request->quotes ?? []),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  $approvedByUsers->isEmpty(),
                         'denied_by_id'                  =>  null,
@@ -995,7 +995,7 @@ class RequestFormController extends Controller
                         'vehicle_id'                    =>  $request->vehicleId,
                         'information'                   =>  json_encode($request->information),
                         'total'                         =>  $request->total,
-                        'quotes'                        =>  json_encode($request->quotes),
+                        'quotes'                        =>  json_encode($request->quotes ?? []),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  $approvedByUsers->isEmpty(),
                         'denied_by_id'                  => null,
@@ -1029,7 +1029,7 @@ class RequestFormController extends Controller
                         'lastRefillDate'                =>  $vehicle->lastRefillDate,
                         'lastRefillFuelReceived'        =>  $vehicle->lastRefillFuelReceived,
                         'lastRefillMileageCovered'      =>  $vehicle->lastRefillMileageCovered,
-                        'quotes'                        =>  json_encode($request->quotes),
+                        'quotes'                        =>  json_encode($request->quotes ?? []),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  $approvedByUsers->isEmpty(),
                         'denied_by_id'                  =>  null,
@@ -1278,7 +1278,7 @@ class RequestFormController extends Controller
                         'approvalStatus' => 4,
 
                         //Should it be made compulsory?
-                        'receipts'       => json_encode($request->receipts)
+                        'receipts'       =>  json_encode($request->receipts ?? []),
                     ]);
 
                     (new NotificationController())->notifyUser($requestForm,"RECONCILED");
