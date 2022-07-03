@@ -175,6 +175,11 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['employee','management']
         ])->name('request-forms.show');
 
+        Route::post('/find/{code}', [
+            "uses"  => "App\Http\Controllers\RequestFormController@findRequestForm",
+            'roles' =>['employee','management']
+        ])->name('request-forms.find');
+
         Route::get('/edit/{id}', [
             "uses"  => "App\Http\Controllers\RequestFormController@edit",
             'roles' =>['employee','management']
@@ -215,6 +220,14 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
              'roles' =>['accountant']
         ])->name('request-forms.reconcile');
 
+    });
+
+    Route::group(['prefix'=>'notifications'],function() {
+
+        Route::get('/', [
+            "uses" => "App\Http\Controllers\NotificationController@index",
+            'roles' => ['employee', 'management']
+        ])->name('notifications');
     });
 
 });

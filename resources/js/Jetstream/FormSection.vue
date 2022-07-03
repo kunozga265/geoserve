@@ -1,5 +1,30 @@
 <template>
-    <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="page-section">
+        <div class="page-section-header">
+            <div class="page-section-title">
+                <slot name="title"></slot>
+            </div>
+        </div>
+        <div class="page-section-content">
+            <form @submit.prevent="$emit('submitted')">
+                <div class="flex justify-center">
+                    <div class="card w-full max-w-7xl">
+                        <div
+                            :class="hasActions ? 'sm:rounded-tl-md sm:rounded-tr-md' : 'sm:rounded-md'">
+                            <div class="">
+                                <slot name="form"></slot>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-4" v-if="hasActions">
+                            <slot name="actions"></slot>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+<!--    <div class="md:grid md:grid-cols-3 md:gap-6">
         <jet-section-title>
             <template #title><slot name="title"></slot></template>
             <template #description><slot name="description"></slot></template>
@@ -19,7 +44,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div>-->
 </template>
 
 <script>

@@ -106,14 +106,16 @@
 
                         <div class="flex items-center">
 
-                            <div class="ml-3 relative hover:cursor-pointer cursor">
-                                <div style="font-size:10px; font-weight: bold" class="absolute right-0 h-4 w-4 rounded-full text-white font-bold grid justify-center text-xs bg-red flex items-center ">
-                                    12
+                            <inertia-link :href="route('notifications')">
+                                <div class="ml-3 relative hover:cursor-pointer cursor">
+                                    <div v-show="$page.props.notificationsCount > 0" style="font-size:10px" class="absolute right-0 h-4 w-4 rounded-full text-white font-bold grid justify-items-center text-xs bg-red-500 flex items-center ">
+                                        {{$page.props.notificationsCount}}
+                                    </div>
+                                    <div class="h-9 w-9 rounded-full  grid justify-items-center flex items-center hover:cursor-pointer">
+                                        <img style="height:28px" :src="fileUrl('images/notifications.svg')" alt="Notifications Icon">
+                                    </div>
                                 </div>
-                                <div class="h-9 w-9 rounded-full  grid justify-items-center flex items-center hover:cursor-pointer">
-                                    <img style="height:28px" :src="fileUrl('images/notifications.svg')" alt="Notifications Icon">
-                                </div>
-                            </div>
+                            </inertia-link>
 
                             <!-- Settings Dropdown -->
                             <div class="mx-3">

@@ -19,12 +19,12 @@ class NotificationResource extends JsonResource
             'contents'      =>  json_decode($this->contents),
             'type'          =>  $this->type,
             'read'          =>  $this->read,
-            'user'          =>  $this->user,
-            'date'          =>  [
-                'formatted' =>  date('jS F, Y',$this->created_at->getTimestamp()),
-                'month'   => date("M",$this->created_at->getTimestamp()),
-                'year'   => date("Y",$this->created_at->getTimestamp())
-            ]
+//            'user'          =>  $this->user,
+//            'date'          =>  [
+//                'formatted' =>  date('jS F, Y',$this->created_at->getTimestamp()),
+//                'month'   => date("M",$this->created_at->getTimestamp()),
+//                'year'   => date("Y",$this->created_at->getTimestamp())
+//            ]
         ];
     }
 }

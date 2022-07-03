@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\AppController;
 use App\Http\Resources\UserResource;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
@@ -54,6 +56,15 @@ class HandleInertiaRequests extends Middleware
                     'success'   =>$request->session()->get('success'),
                     'error'     =>$request->session()->get('error'),
                 ];
+            },
+            'notificationsCount'=> function() use ($request){
+                //get user
+                $user=(new AppController())->getAuthUser($request);
+
+                if ($user){
+                    return $user->userNotifications()->where('read',0)->get()->count();
+                }else
+                    return 0;
             },
         ]);
     }

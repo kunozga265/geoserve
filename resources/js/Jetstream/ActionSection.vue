@@ -1,5 +1,19 @@
 <template>
-    <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="page-section">
+        <div class="page-section-header">
+            <div class="page-section-title">
+                <slot name="title"></slot>
+            </div>
+        </div>
+        <div class="page-section-content">
+            <div class="flex justify-center">
+                <div class="card w-full max-w-7xl">
+                    <slot name="content"></slot>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--    <div class="md:grid md:grid-cols-3 md:gap-6">
         <jet-section-title>
             <template #title><slot name="title"></slot></template>
             <template #description><slot name="description"></slot></template>
@@ -10,7 +24,7 @@
                 <slot name="content"></slot>
             </div>
         </div>
-    </div>
+    </div>-->
 </template>
 
 <script>

@@ -232,7 +232,7 @@ class ProjectController extends Controller
                 return response()->json(new ProjectResource($project));
             }else{
                 //Web Response
-                return Redirect::route('projects')->with('success','Project Verified');
+                return Redirect::back()->with('success','Project Verified');
             }
         }
         else{

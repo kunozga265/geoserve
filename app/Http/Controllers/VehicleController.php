@@ -257,7 +257,7 @@ class VehicleController extends Controller
                 return response()->json(new VehicleResource($vehicle));
             }else{
                 //Web Response
-                return Redirect::route('vehicles')->with('success','Vehicle verified');
+                return Redirect::back()->with('success','Vehicle verified');
             }
         }
         else {

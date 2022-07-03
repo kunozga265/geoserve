@@ -132,6 +132,13 @@ class UserController extends Controller
                     $user->roles()->attach($accountantRole);
                 }
 
+                //If position is an accountant
+                if($user->position->id == 1 || $user->position->id == 7){
+                    $user->roles()->detach();
+                    $managementRole=Role::where('name','management')->first();
+                    $user->roles()->attach($managementRole);
+                }
+
                 //Run notifications
                 (new NotificationController())->notifyUser($user,"USER_VERIFIED");
 

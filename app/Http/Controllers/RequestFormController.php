@@ -1333,8 +1333,28 @@ class RequestFormController extends Controller
 
     }
 
-    private function getRequestForms($status){
-        $requestForms=RequestForm::where('approvalStatus',$status)->get();
-        return $requestForms;
+    public function findRequestForm(Request $request,$code){
+        //find out if the request is valid
+        $requestForm=RequestForm::where('code',$code)->first();
+
+        if(is_object($requestForm)){
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new RequestFormResource($requestForm));
+            }else{
+                //Web Response
+                return Inertia::render('RequestForms/Show',[
+                    'request' => new RequestFormResource($requestForm)
+                ]);
+            }
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::route('dashboard')->with('error','Request form not found');
+            }
+        }
     }
 }
