@@ -32,7 +32,7 @@
                             <div class="h-64 w-64 sm:h-80 sm:w-80  mx-auto relative">
                                 <div class="pie-chart pie-chart-users absolute font-bold flex justify-center items-center">
                                     <div class="heading">
-                                        <div class="font-bold heading-font text-center">5</div>
+                                        <div class="font-bold heading-font text-center">{{totalRoles}}</div>
                                         <div class="xl font-bold heading-font text-center">Types</div>
                                     </div>
                                 </div>
@@ -232,10 +232,10 @@
               },
               rolesData:{
                   datasets: [{
-                      data: [25, 60,45,19,4],
+                      data: [],
                       backgroundColor: ['#1a56db','#6690F3FF','#ed0b4b','#b1bbc9','#e3ebf6'],
                   }],
-                  labels: ['Unverified','Employee', 'Accountant', 'Administrator', 'Management']
+                  labels: []
               },
               rolesChartOptions:{
                   plugins: {
@@ -249,7 +249,15 @@
                   },
                   cutout:70
               },
+              totalRoles:0
           }
+        },
+        created(){
+            for(let x in this.roles.data) {
+                this.rolesData.datasets[0].data.push(this.roles.data[x].usersCount)
+                this.rolesData.labels.push((this.roles.data[x].name))
+            }
+            this.totalRoles=(this.roles.data).length
         },
         methods:{
             viewUser(id){
