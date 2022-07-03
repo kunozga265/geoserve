@@ -491,13 +491,13 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="request.data.type !=='FUEL' && request.data.quotes.length > 0" class="page-section md:col-span-2">
-                        <div class="page-section-header">
+                    <div v-if="request.data.type !=='FUEL' && request.data.quotes" class="page-section md:col-span-2">
+                        <div v-show="request.data.quotes.length > 0" class="page-section-header">
                             <div class="page-section-title">
                                 Attached Quotes
                             </div>
                         </div>
-                        <div class="page-section-content">
+                        <div v-show="request.data.quotes.length > 0" class="page-section-content">
                             <div class="card">
 
                                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
@@ -518,13 +518,13 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="request.data.receipts.length > 0" class="page-section md:col-span-2">
-                        <div class="page-section-header">
+                    <div v-if="request.data.receipts" class="page-section md:col-span-2">
+                        <div v-show="request.data.receipts.length > 0" class="page-section-header">
                             <div class="page-section-title">
                                 Attached Receipts
                             </div>
                         </div>
-                        <div class="page-section-content">
+                        <div v-show="request.data.receipts.length > 0" class="page-section-content">
                             <div class="card">
 
                                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
@@ -628,13 +628,13 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="request.data.remarks.length > 0" class="page-section md:col-span-2" >
-                        <div class="page-section-header">
+                    <div v-if="request.data.remarks" class="page-section md:col-span-2" >
+                        <div v-show="request.data.remarks.length > 0" class="page-section-header">
                             <div class="page-section-title">
                                 Remarks
                             </div>
                         </div>
-                        <div class="page-section-content">
+                        <div v-show="request.data.remarks.length > 0" class="page-section-content">
                             <div class="grid grid-cols-1 md:grid-cols-2">
                                 <div class="card p-0"
                                      v-for="(remark,index) in request.data.remarks"

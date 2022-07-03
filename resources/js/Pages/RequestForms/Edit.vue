@@ -528,7 +528,7 @@
                 let quotes=[]
                 let split=null
 
-                if (files.length>0) {
+                if (files) {
                     for (let x in files) {
                         split = files[x].split('.')
                         quotes.push({
