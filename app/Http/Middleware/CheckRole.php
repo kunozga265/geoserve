@@ -16,7 +16,6 @@ class CheckRole
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\JsonResponse
      */
     public function handle(Request $request, Closure $next)
     {
@@ -27,7 +26,14 @@ class CheckRole
 
         if($user->hasAnyRole($roles)||!$roles){
             return $next($request);
-        }else
-            return response()->json([ 'message'=>'Unauthorized. Does not have access rights.'],403);
+        }else {
+            if ((new AppController())->isApi($request))
+                //API Response
+                return response()->json(['message' => 'Unauthorized. Does not have access rights.'], 403);
+            else{
+                //Web Response
+                return Redirect::route('dashboard')->with('error','Unauthorized. You do not have access rights.');
+            }
+        }
     }
 }
