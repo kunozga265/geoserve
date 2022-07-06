@@ -64,7 +64,7 @@
                     Disabled User
                 </div>
                 <div v-else>
-                    <div class="page-section">
+                    <div v-if="dashboardReports.data.length > 0" class="page-section">
                         <div class="page-section-header">
                             <div class="page-section-title">
                                 Overview
