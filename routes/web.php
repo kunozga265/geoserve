@@ -156,6 +156,16 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             "uses"  => "App\Http\Controllers\VehicleController@destroy",
             'roles' => ['administrator','management']
         ])->name('vehicles.delete');
+
+        Route::get('/gases', [
+            "uses"  => "App\Http\Controllers\GasController@edit",
+            'roles' =>['administrator']
+        ])->name('gases.edit');
+
+        Route::post('/gases', [
+            "uses"  => "App\Http\Controllers\GasController@update",
+            'roles' =>['administrator']
+        ])->name('gases.update');
     });
 
     Route::group(['prefix'=>'request-forms'],function() {
@@ -210,6 +220,11 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['employee','management']
         ])->name('request-forms.discard');
 
+        Route::post('/add-remarks/{id}', [
+            "uses"  => "App\Http\Controllers\RequestFormController@appendRemarks",
+            'roles' =>['employee','management']
+        ])->name('request-forms.add-remarks');
+
         Route::post('/initiate/{id}', [
             "uses"  => "App\Http\Controllers\RequestFormController@initiate",
              'roles' =>['accountant']
@@ -219,6 +234,11 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             "uses"  => "App\Http\Controllers\RequestFormController@reconcile",
              'roles' =>['accountant']
         ])->name('request-forms.reconcile');
+
+        Route::get('/print/{id}', [
+            "uses"  => "App\Http\Controllers\RequestFormController@print",
+            'roles' =>['employee','management']
+        ])->name('request-forms.print');
 
     });
 

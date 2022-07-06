@@ -21,6 +21,12 @@
                     New Vehicle
                 </button>
             </inertia-link>
+            <inertia-link :href="route('gases.edit')">
+                <secondary-button>
+                    Fuel Prices
+                    <i class="ml-2 mdi mdi-pencil"></i>
+                </secondary-button>
+            </inertia-link>
         </template>
 
         <div class="py-6">
@@ -100,6 +106,7 @@
     import BarChart from "@/Components/Charts/BarChart";
     import PieChart from "@/Components/Charts/PieChart";
     import JetButton from "@/Jetstream/Button";
+    import SecondaryButton from "@/Jetstream/SecondaryButton";
 
     export default {
         props:['vehicles'],
@@ -108,7 +115,8 @@
             DoughnutChart,
             BarChart,
             PieChart,
-            JetButton
+            JetButton,
+            SecondaryButton
         },
         data(){
           return{

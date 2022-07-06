@@ -265,8 +265,12 @@
 
                                     <div class="p-2 mb-2">
                                         <jet-label for="fuelRequestedMoney" value="Fuel Requested (Money Equivalent)"/>
-                                        <jet-input id="fuelRequestedMoney" type="text" class="block w-full" v-model="form.fuelRequestedMoney" required/>
+                                        <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                            {{numberWithCommas(fuelRequestedMoney)}}
+                                        </div>
+                                        <span v-if="fuelVehicle" class="text-sm text-gray-600">@ K{{numberWithCommas(fuelVehicle.gas.perLitre)}}/Litre</span>
                                     </div>
+
 
                                     <div class="p-2 mb-2 md:col-span-2">
                                         <jet-label for="purpose" value="Purpose" />
@@ -334,7 +338,7 @@
                   personCollectingAdvance:this.request.data.personCollectingAdvance,
                   assessedBy:this.request.data.assessedBy,
                   fuelRequestedLitres:this.request.data.fuelRequestedLitres,
-                  fuelRequestedMoney:this.request.data.fuelRequestedMoney,
+                  // fuelRequestedMoney:this.request.data.fuelRequestedMoney,
                   purpose:this.request.data.purpose,
                   driverName:this.request.data.driverName,
                   information:this.request.data.information,
@@ -396,6 +400,12 @@
                 else
                     return this.vehicles.data[this.fuelVehicleIndex]
             },
+            fuelRequestedMoney(){
+                if (this.fuelVehicle && this.form.fuelRequestedLitres !== "" && !isNaN(this.form.fuelRequestedLitres))
+                    return parseFloat((parseFloat(this.form.fuelRequestedLitres)*this.fuelVehicle.gas.perLitre).toFixed(2))
+                else
+                    return 0
+            },
             totalCost(){
                 let totalCost=0
                 let currentTotal=0
@@ -454,12 +464,12 @@
                     }else if(isNaN(this.form.fuelRequestedLitres)) {
                         this.error = "Fuel requested (in litres) should be a number"
                         return false
-                    }else if(this.form.fuelRequestedMoney==='' || this.form.fuelRequestedMoney.length===0) {
+                    }else if(this.fuelRequestedMoney===0) {
                         this.error = "Enter fuel requested (money equivalent)"
                         return false
-                    }else if(isNaN(this.form.fuelRequestedMoney)) {
-                        this.error = "Fuel requested (money equivalent) should be a number"
-                        return false
+                        /* }else if(isNaN(this.form.fuelRequestedMoney)) {
+                             this.error = "Fuel requested (money equivalent) should be a number"
+                             return false*/
                     }else if(this.form.purpose==='' || this.form.purpose.length===0) {
                         this.error = "Enter the purpose"
                         return false
@@ -488,7 +498,8 @@
                         'projectId': projectId,
                         total: this.totalCost,
                         quotes: this.quoteFiles,
-                        vehicleId: vehicleId
+                        vehicleId: vehicleId,
+                        fuelRequestedMoney:this.fuelRequestedMoney
                     }))
                     .post(this.route('request-forms.update',{id:this.request.data.id}))
             },
