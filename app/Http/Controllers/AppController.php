@@ -18,8 +18,12 @@ class AppController extends Controller
         if ($this->isApi($request)) {
             //API User
             $requestToken=substr($request->server('HTTP_AUTHORIZATION'),7);
-            $token = PersonalAccessToken::findToken($requestToken);
-            return $token->tokenable;
+
+            if ($requestToken) {
+                $token = PersonalAccessToken::findToken($requestToken);
+                return $token->tokenable;
+            }else
+                return null;
         }
         else{
             return User::find(Auth::id());
