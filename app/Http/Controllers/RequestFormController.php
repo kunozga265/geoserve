@@ -6,13 +6,16 @@ use App\Http\Resources\ProjectResource;
 use App\Http\Resources\ReportResource;
 use App\Http\Resources\RequestFormResource;
 use App\Http\Resources\VehicleResource;
+use App\Models\Position;
 use App\Models\Project;
 use App\Models\Report;
 use App\Models\RequestForm;
 use App\Models\User;
 use App\Models\Vehicle;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -37,6 +40,7 @@ class RequestFormController extends Controller
         //get reports for the year
         $year=date('Y');
         $reports=Report::where('year',$year)->get();
+
         $dashboardReports=[
             'data'=>[]
         ];
@@ -615,6 +619,7 @@ class RequestFormController extends Controller
                             'approvedDate'              => Carbon::now()->getTimestamp(),
                             'remarks'                   => $this->addRemarks($user,$requestForm,$request->remarks),
                             'editable'                  => false,
+                             'denied_by_id'             =>  null,
                         ]);
 
                         //attach this request under approved requests
@@ -674,6 +679,7 @@ class RequestFormController extends Controller
                                 'stagesApprovalPosition'    => $nextStage,
                                 'remarks'                   => $this->addRemarks($user,$requestForm,$request->remarks),
                                 'editable'                  => false,
+                                 'denied_by_id'             =>  null,
                             ]);
 
                         }
@@ -687,6 +693,7 @@ class RequestFormController extends Controller
                                 'stagesApprovalStatus'      => true,
                                 'remarks'                   => $this->addRemarks($user,$requestForm,$request->remarks),
                                 'editable'                  => false,
+                                 'denied_by_id'             =>  null,
                             ]);
                         }
 
@@ -970,7 +977,6 @@ class RequestFormController extends Controller
                         'quotes'                        =>  json_encode($request->quotes ?? []),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  $approvedByUsers->isEmpty(),
-                        'denied_by_id'                  =>  null,
                     ]);
 
 
@@ -998,7 +1004,6 @@ class RequestFormController extends Controller
                         'quotes'                        =>  json_encode($request->quotes ?? []),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  $approvedByUsers->isEmpty(),
-                        'denied_by_id'                  => null,
                     ]);
 
                 } elseif($requestForm->type == "FUEL" ){
@@ -1032,7 +1037,6 @@ class RequestFormController extends Controller
                         'quotes'                        =>  json_encode($request->quotes ?? []),
                         'approvalStatus'                =>  0,
                         'editable'                      =>  $approvedByUsers->isEmpty(),
-                        'denied_by_id'                  =>  null,
                     ]);
 
                 }else {
@@ -1071,7 +1075,7 @@ class RequestFormController extends Controller
             return response()->json(new RequestFormResource($requestForm));
         }else{
             //Web Response
-            return Redirect::route('request-forms.show',['id'=>$requestForm->id]);
+            return Redirect::route('request-forms.show',['id'=>$requestForm->id])->with('success','Request resubmitted');
         }
     }
 
@@ -1106,6 +1110,79 @@ class RequestFormController extends Controller
                 //Web Response
                 return Redirect::route('dashboard')->with('success','Request has been deleted');
             }
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Request form not found');
+            }
+        }
+    }
+
+    public function appendRemarks(Request $request,$id)
+    {
+        //find out if the request is valid
+        $requestForm=RequestForm::find($id);
+
+        if(is_object($requestForm)){
+
+            // Remarks for denying the request are a must
+            $request->validate([
+                'remarks'   =>  'required'
+            ]);
+
+            //get user
+            $user=(new AppController())->getAuthUser($request);
+
+            //check if request is editable
+            if($requestForm->editable) {
+                //check if request can be approved, if it is in pending state
+                if($requestForm->approvalStatus == 0 || $requestForm->approvalStatus == 2){
+
+                    //check if the user is the owner of the request
+                    if ($requestForm->user->id != $user->id ){
+                        if ((new AppController())->isApi($request)) {
+                            //API Response
+                            return response()->json(['message'=>"You are not the owner of this request form"],405);
+                        }else{
+                            //Web Response
+                            return Redirect::back()->with('error','You are not the owner of this request form');
+                        }
+                    }
+
+                    $requestForm->update([
+                        'remarks'           => $this->addRemarks($user,$requestForm,$request->remarks),
+                    ]);
+
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(new RequestFormResource($requestForm));
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('success','Remark added');
+                    }
+
+                }else {
+                    if ((new AppController())->isApi($request)) {
+                        //API Response
+                        return response()->json(['message' => "You cannot add a remark to this request"], 405);
+                    }else{
+                        //Web Response
+                        return Redirect::back()->with('error','You cannot add a remark to this request');
+                    }
+                }
+            }else {
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => "Request cannot be edited"], 405);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Request cannot be edited');
+                }
+            }
+
         }else {
             if ((new AppController())->isApi($request)) {
                 //API Response
@@ -1355,6 +1432,80 @@ class RequestFormController extends Controller
                 //Web Response
                 return Redirect::route('dashboard')->with('error','Request form not found');
             }
+        }
+    }
+
+    public function print(Request $request,$id)
+    {
+        //find out if the request is valid
+        $requestForm=RequestForm::find($id);
+
+        if(is_object($requestForm)){
+
+/*
+            $pdf=App::make('dompdf.wrapper');
+            $pdf->loadHTML('request');
+            return $pdf->stream('Request Form');*/
+
+            $type=$this->getRequestTitle($requestForm->type);
+            $filename=(new NotificationController())->getRequestTitle($requestForm->type,$requestForm->code)." - ".date('Y F j');
+
+            $now=Carbon::now('Africa/Lusaka')->format('j F Y H:i');
+
+            $pdf = PDF::loadView('request', [
+                'type'          => $type,
+                'now'           => $now,
+                'statusMessage' => $this->getStatusMessage($requestForm),
+                'requestForm'   =>new RequestFormResource($requestForm)
+            ]);
+            return $pdf->download("$filename.pdf");
+
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => "Request form not found"], 404);
+            }else{
+                //Web Response
+                return Redirect::route('dashboard')->with('error','Request form not found');
+            }
+        }
+    }
+
+    private function getRequestTitle($type){
+        switch ($type){
+            case "CASH":
+                return "Cash Advance Authorisation Form";
+            case "MATERIALS":
+                return "Materials Request Form";
+            case "VEHICLE_MAINTENANCE":
+                return "Vehicle Maintenance Request";
+            default:
+                return "Fuel Request";
+
+        }
+    }
+
+    public function getStatusMessage($requestForm){
+        switch ($requestForm->approvalStatus){
+            case 0:
+                if ($requestForm->stagesApprovalStatus)
+                    return "Pending : Manager to approve";
+                else {
+                    $position=Position::find($requestForm->stagesApprovalPosition);
+                    return "Pending : " . $position->title . " to approve";
+                }
+            case 1:
+                return "Approved: Accountant to initiate";
+            case 2:
+                return "Denied: By ".$requestForm->deniedBy->firstName." ".$requestForm->deniedBy->middleName." ".$requestForm->deniedBy->lastName;
+            case 3:
+                return "Accountant to reconcile";
+            case 4:
+                return "Reconciled";
+            case 5:
+                return "Discarded";
+            default:
+                return "Unknown";
         }
     }
 }

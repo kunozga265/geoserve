@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\RequestFormController;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,20 +20,20 @@ class RequestFormResource extends JsonResource
     {
         //get user
         $user=(new AppController())->getAuthUser($request);
-        $canEdit=$this->editable && $this->user->id === $user->id;
-        $canDelete=$this->editable && $this->user->id === $user->id && ($this->approvedBy->isEmpty());
-        $canDiscard=$this->editable && $this->user->id === $user->id && !($this->approvedBy->isEmpty());
+        $canEdit=$this->editable && $this->user->id == $user->id;
+        $canDelete=$this->editable && $this->user->id == $user->id && ($this->approvedBy->isEmpty()) && $this->deniedBy == null;
+        $canDiscard=$this->editable && $this->user->id == $user->id && (!($this->approvedBy->isEmpty()) || $this->deniedBy != null);
         $canInitiate=$this->approvalStatus==1 && $user->hasRole('accountant');
         $canReconcile=$this->approvalStatus==3 && $user->hasRole('accountant');
 
         //next to approve
-        if($this->stagesApprovalStatus === 0)
-            $nextApprove=$this->stagesApprovalPosition === $user->position->id;
+        if($this->stagesApprovalStatus == 0)
+            $nextApprove=$this->stagesApprovalPosition == $user->position->id;
         else
             $nextApprove=$user->hasRole('management');
 
 
-        $canApproveOrDeny=$this->user->id !== $user->id && $this->approvalBy == null && $this->approvalStatus!==2 && $nextApprove;
+        $canApproveOrDeny=$this->user->id != $user->id && $this->approvalBy == null && $this->approvalStatus!=2 && $nextApprove;
 
 
         switch ($this->type){
@@ -59,7 +60,7 @@ class RequestFormResource extends JsonResource
                     'dateInitiated'                       =>  $this->dateInitiated,
                     'dateReconciled'                      =>  $this->dateReconciled,
                     'status'                              =>  $this->getApprovalStatus($this->approvalStatus),
-                    'statusMessage'                       =>  $this->getStatusMessage($this),
+                    'statusMessage'                       =>  (new RequestFormController())->getStatusMessage($this),
                     'approvedBy'                          =>  new UserResource($this->approvalBy),
                     'deniedBy'                            =>  $this->deniedBy,
                     'editable'                            =>  $this->editable,
@@ -95,7 +96,7 @@ class RequestFormResource extends JsonResource
                     'dateInitiated'                       =>  $this->dateInitiated,
                     'dateReconciled'                      =>  $this->dateReconciled,
                     'status'                              =>  $this->getApprovalStatus($this->approvalStatus),
-                    'statusMessage'                       =>  $this->getStatusMessage($this),
+                    'statusMessage'                       =>  (new RequestFormController())->getStatusMessage($this),
                     'approvedBy'                          =>  new UserResource($this->approvalBy),
                     'deniedBy'                            =>  $this->deniedBy,
                     'editable'                            =>  $this->editable,
@@ -136,7 +137,7 @@ class RequestFormResource extends JsonResource
                     'dateInitiated'                       =>  $this->dateInitiated,
                     'dateReconciled'                      =>  $this->dateReconciled,
                     'status'                              =>  $this->getApprovalStatus($this->approvalStatus),
-                    'statusMessage'                       =>  $this->getStatusMessage($this),
+                    'statusMessage'                       =>  (new RequestFormController())->getStatusMessage($this),
                     'approvedBy'                          =>  new UserResource($this->approvalBy),
                     'deniedBy'                            =>  $this->deniedBy,
                     'editable'                            =>  $this->editable,
@@ -156,7 +157,7 @@ class RequestFormResource extends JsonResource
         }
     }
 
-    private function approvalPosition($positionId){
+    public function approvalPosition($positionId){
         $position=Position::find($positionId);
         if(is_object($position))
             return new PositionResource($position);
@@ -191,27 +192,5 @@ class RequestFormResource extends JsonResource
         }
     }
 
-    private function getStatusMessage($requestForm){
-        switch ($requestForm->approvalStatus){
-            case 0:
-                if ($requestForm->stagesApprovalStatus)
-                    return "Pending : Manager to approve";
-                else {
-                    $position=$this->approvalPosition($requestForm->stagesApprovalPosition);
-                    return "Pending : " . $position->title . " to approve";
-                }
-            case 1:
-                return "Approved: Accountant to initiate";
-            case 2:
-                return "Denied: By ".$requestForm->deniedBy->firstName." ".$requestForm->deniedBy->middleName." ".$requestForm->deniedBy->lastName;
-            case 3:
-                return "Accountant to reconcile";
-            case 4:
-                return "Reconciled";
-            case 5:
-                return "Discarded";
-            default:
-                return "Unknown";
-        }
-    }
+
 }
