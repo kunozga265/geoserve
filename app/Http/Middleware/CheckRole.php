@@ -24,16 +24,18 @@ class CheckRole
 
         $user=(new AppController())->getAuthUser($request);
 
-        if($user->hasAnyRole($roles)||!$roles){
-            return $next($request);
-        }else {
-            if ((new AppController())->isApi($request))
-                //API Response
-                return response()->json(['message' => 'Unauthorized. Does not have access rights.'], 403);
-            else{
-                //Web Response
-                return Redirect::route('dashboard')->with('error','Unauthorized. You do not have access rights.');
+        if (is_object($user)) {
+            if ($user->hasAnyRole($roles) || !$roles) {
+                return $next($request);
             }
+        }
+
+        if ((new AppController())->isApi($request))
+            //API Response
+            return response()->json(['message' => 'Unauthorized. Does not have access rights.'], 403);
+        else{
+            //Web Response
+            return Redirect::route('dashboard')->with('error','Unauthorized. You do not have access rights.');
         }
     }
 }
