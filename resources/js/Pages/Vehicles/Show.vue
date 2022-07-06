@@ -91,10 +91,16 @@
                                     </span>
                                     </div>
                                     <div class="mb-4">
+                                        <div class="text-sm text-gray-600">Fuel Type</div>
+                                        <span class="mr-2 role rounded py-1 px-2 bg-gray-200 text-gray-600 text-sm font-bold uppercase">
+                                            {{vehicle.gas.type}}
+                                        </span>
+                                    </div>
+                                    <div class="mb-4">
                                         <div class="text-sm text-gray-600">Mileage</div>
                                         <span class="mr-2 role rounded py-1 px-2 bg-gray-200 text-gray-600 text-sm font-bold uppercase">
-                                        {{numberWithCommas(vehicle.mileage)}}KM
-                                    </span>
+                                            {{numberWithCommas(vehicle.mileage)}}KM
+                                        </span>
                                     </div>
                                     <div v-if="vehicle.lastRefillDate" class="mb-4">
                                         <div class="text-sm text-gray-600">Last Refill Date</div>

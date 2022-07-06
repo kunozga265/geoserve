@@ -15,6 +15,11 @@ class Vehicle extends Model
         return $this->hasMany(RequestForm::class);
     }
 
+    public function gas()
+    {
+        return $this->belongsTo(Gas::class);
+    }
+
     protected $fillable=[
         "photo",
         "vehicleRegistrationNumber",
@@ -22,6 +27,7 @@ class Vehicle extends Model
         "lastRefillDate",
         "lastRefillFuelReceived",
         "lastRefillMileageCovered",
+        "gas_id",
         "verified",
     ];
 

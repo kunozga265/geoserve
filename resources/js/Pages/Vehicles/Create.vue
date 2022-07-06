@@ -51,6 +51,19 @@
                                     <jet-input id="vehicleRegistrationNumber" type="text" class="mt-1 block w-full" v-model="form.vehicleRegistrationNumber" required autofocus autocomplete="geoserve-vehicle-vehicleRegistrationNumber"/>
                                 </div>
                                 <div class="mb-4">
+                                    <label for="gas" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300 heading-font">Fuel Type</label>
+                                    <select v-model="form.gasId" id="gas" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"  required>
+                                        <option value="">Select fuel type</option>
+                                        <option
+                                            v-for="gas in gases.data"
+                                            :value="gas.id"
+                                            :key="gas.id"
+                                        >
+                                            {{ gas.type}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
                                     <jet-label for="mileage" value="Mileage" />
                                     <jet-input id="mileage" type="text" class="mt-1 block w-full" v-model="form.mileage" required autocomplete="geoserve-vehicle-mileage"/>
                                 </div>
@@ -97,6 +110,7 @@
     import JetValidationErrors from '@/Jetstream/ValidationErrors'
 
     export default {
+        props:['gases'],
         components: {
             AppLayout,
             DoughnutChart,
@@ -112,6 +126,7 @@
               form: this.$inertia.form({
                   photo:'',
                   vehicleRegistrationNumber:'',
+                  gasId:'',
                   mileage:'',
                   lastRefillFuelReceived:'',
                   lastRefillMileageCovered:'',

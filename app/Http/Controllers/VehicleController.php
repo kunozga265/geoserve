@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GasResource;
 use App\Http\Resources\RequestFormResource;
 use App\Http\Resources\VehicleResource;
+use App\Models\Gas;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -37,7 +39,10 @@ class VehicleController extends Controller
     }
     public function create(Request $request)
     {
-        return Inertia::render('Vehicles/Create');
+        $gases=Gas::all();
+        return Inertia::render('Vehicles/Create',[
+            'gases' =>  GasResource::collection($gases)
+        ]);
     }
 
     /**
@@ -50,6 +55,7 @@ class VehicleController extends Controller
         $request->validate([
             "vehicleRegistrationNumber" =>  ['required','unique:vehicles'],
             "mileage"                   =>  ['required','numeric'],
+            "gasId"                     =>  ['required','numeric'],
         ]);
 
         if(isset($request->lastRefillFuelReceived))
@@ -65,6 +71,7 @@ class VehicleController extends Controller
             "lastRefillDate"                =>  $request->lastRefillDate,
             "lastRefillFuelReceived"        =>  $request->lastRefillFuelReceived,
             "lastRefillMileageCovered"      =>  $request->lastRefillMileageCovered,
+            "gas_id"                        =>  $request->gasId,
             "verified"                      =>  false,
         ]);
 
@@ -82,8 +89,6 @@ class VehicleController extends Controller
             //Web Response
             return Redirect::route('vehicles')->with('success','Vehicle created');
         }
-
-
     }
 
     /**
@@ -158,8 +163,10 @@ class VehicleController extends Controller
                 return Redirect::back()->with('error','Vehicle is not editable');
             }
 
+            $gases=Gas::all();
             return Inertia::render('Vehicles/Edit',[
-                'vehicle' => new VehicleResource($vehicle)
+                'vehicle' => new VehicleResource($vehicle),
+                'gases' =>  GasResource::collection($gases)
             ]);
         }
         else {
@@ -192,6 +199,7 @@ class VehicleController extends Controller
             $request->validate([
                 "vehicleRegistrationNumber" =>  ['required'],
                 "mileage"                   =>  ['required'],
+                "gasId"                     =>  ['required','numeric'],
             ]);
 
             if(isset($request->lastRefillFuelReceived))
@@ -214,6 +222,7 @@ class VehicleController extends Controller
                 "lastRefillDate"                =>  $request->lastRefillDate,
                 "lastRefillFuelReceived"        =>  $request->lastRefillFuelReceived,
                 "lastRefillMileageCovered"      =>  $request->lastRefillMileageCovered,
+                "gas_id"                        =>  $request->gasId,
             ]);
 
             if ((new AppController())->isApi($request)) {
