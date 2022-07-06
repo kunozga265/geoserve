@@ -350,7 +350,7 @@ class NotificationController extends Controller
         }
     }
 
-    private function getRequestTitle($type,$code){
+    public function getRequestTitle($type,$code){
         switch ($type){
             case "CASH":
                 return "Cash Request [$code]";
