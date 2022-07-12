@@ -206,13 +206,13 @@
                     @if($requestForm->dateInitiated)
                         <tr>
                             <td style="font-weight: bold">Initiated Date</td>
-                            <td>{{date("j F Y H:i",$requestForm->dateInitiated)}}</td>
+                            <td>{{\Carbon\Carbon::createFromTimestamp($requestForm->dateInitiated,'Africa/Lusaka')->format('j F Y H:i')}}</td>
                         </tr>
                     @endif
                     @if($requestForm->dateReconciled)
                         <tr>
                             <td style="font-weight: bold">Reconciled Date</td>
-                            <td>{{date("j F Y H:i",$requestForm->dateReconciled)}}</td>
+                            <td>{{\Carbon\Carbon::createFromTimestamp($requestForm->dateReconciled,'Africa/Lusaka')->format('j F Y H:i')}}</td>
                         </tr>
                     @endif
                 </table>
@@ -235,7 +235,7 @@
                 </tr>
                 <tr>
                     <td style="font-weight: bold; width: 60px">Date</td>
-                    <td>{{date("j F Y H:i",$requestForm->dateRequested)}}</td>
+                    <td>{{\Carbon\Carbon::createFromTimestamp($requestForm->dateRequested,'Africa/Lusaka')->format('j F Y H:i')}}</td>
                 </tr>
             </table>
         </div>
@@ -258,7 +258,7 @@
                         </tr>
                         <tr>
                             <td style="font-weight: bold; width: 60px">Date</td>
-                            <td>{{date("j F Y H:i",$stage->date)}}</td>
+                            <td>{{\Carbon\Carbon::createFromTimestamp($stage->date,'Africa/Lusaka')->format('j F Y H:i')}}</td>
                         </tr>
                     </table>
                 </div>
@@ -282,7 +282,7 @@
                     </tr>
                     <tr>
                         <td style="font-weight: bold; width: 60px">Date</td>
-                        <td>{{date("j F Y H:i",$requestForm->approvedDate)}}</td>
+                        <td>{{\Carbon\Carbon::createFromTimestamp($requestForm->approvedDate,'Africa/Lusaka')->format('j F Y H:i')}}</td>
                     </tr>
                 </table>
             </div>
