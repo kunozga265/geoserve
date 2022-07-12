@@ -219,7 +219,7 @@ class RequestFormController extends Controller
         $user=(new AppController())->getAuthUser($request);
 
         //Requests section
-        $totalRequests=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->count();
+        $totalRequests=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',5)->where('approvalStatus','!=',2)->count();
 
         //For Pie Chart
         $cashRequestsCount=RequestForm::where('approvalStatus','>',0)->where('approvalStatus','<',4)->where('approvalStatus','!=',2)->where('type','CASH')->count();
