@@ -107,6 +107,8 @@
                         return "mdi-book-clock";
                     case "REQUEST_FORM_APPROVED":
                         return "mdi-book-check";
+                    case "REQUEST_FORM_RESUBMITTED":
+                        return "mdi-book-check";
                     case "REQUEST_FORM_DENIED":
                         return "mdi-book-remove";
                     case "WAITING_INITIATE":
