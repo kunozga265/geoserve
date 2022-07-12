@@ -160,6 +160,26 @@ class NotificationController extends Controller
                 //Send email to manager
                 Mail::to($manager)->send(new RequestFormPendingApprovalMail($manager,$object));
             }
+        }elseif ($type == "REQUEST_FORM_RESUBMITTED"){
+            $name= $object->user->firstName. " " .$object->user->lastName;
+            $positionTitle = $object->user->position->title;
+            $message="$name ($positionTitle) has edited and resubmitted their request. May you please attend to it as soon as possible.";
+
+            //Create a notification for managers
+            foreach ($managers as $manager){
+                Notification::create([
+                    'contents'  =>  json_encode([
+                        'message'   => $message,
+                        'type'      => $object->type,
+                        'requestId' => $object->id
+                    ]),
+                    'type'      =>  $type,
+                    'user_id'   =>  $manager->id,
+                ]);
+
+                //Send email to manager
+                Mail::to($manager)->send(new RequestFormPendingApprovalMail($manager,$object));
+            }
         }
     }
 
@@ -197,6 +217,30 @@ class NotificationController extends Controller
             $name= $object->user->firstName. " " .$object->user->lastName;
             $positionTitle = $object->user->position->title;
             $message="$name ($positionTitle) has submitted a request. May you please attend to it as soon as possible.";
+
+            foreach ($employees as $employee) {
+
+                Notification::create([
+                    'contents' => json_encode([
+                        'message'   => $message,
+                        'type'      => $object->type,
+                        'requestId' => $object->id,
+                    ]),
+                    'type' => $type,
+                    'user_id' => $employee->id,
+                ]);
+
+                //Send email to managers
+                Mail::to($employee)->send(new RequestFormPendingApprovalMail($employee, $object));
+            }
+        }elseif($type=="REQUEST_FORM_RESUBMITTED"){
+            //Find the next person(s) to approve
+            $position=Position::find($object->stagesApprovalPosition);
+            $employees=$position->users;
+
+            $name= $object->user->firstName. " " .$object->user->lastName;
+            $positionTitle = $object->user->position->title;
+            $message="$name ($positionTitle) has edited and resubmitted their request. May you please attend to it as soon as possible.";
 
             foreach ($employees as $employee) {
 

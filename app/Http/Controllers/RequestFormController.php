@@ -660,7 +660,7 @@ class RequestFormController extends Controller
                             "position"          =>  $user->position->id,
                             "positionTitle"     =>  $user->position->title,
                             "userId"            =>  $user->id,
-                            "name"              =>  $user->firstName. " " .$user->lastName,
+                            "name"              =>  $user->firstName. " " .$user->middleName. " " .$user->lastName,
                             "date"              =>  Carbon::now()->getTimestamp(),
                             "status"            =>  true
                         ];
@@ -1070,12 +1070,15 @@ class RequestFormController extends Controller
             }
         }
 
+        //Run Notifications
+        (new NotificationController())->requestFormNotifications($requestForm,"REQUEST_FORM_RESUBMITTED");
+
         if ((new AppController())->isApi($request)) {
             //API Response
             return response()->json(new RequestFormResource($requestForm));
         }else{
             //Web Response
-            return Redirect::route('request-forms.show',['id'=>$requestForm->id])->with('success','Request resubmitted');
+            return Redirect::route('request-forms.show',['id'=>$requestForm->id])->with('success','Request edited and resubmitted');
         }
     }
 
