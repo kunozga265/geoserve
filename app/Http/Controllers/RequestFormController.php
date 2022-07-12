@@ -97,6 +97,8 @@ class RequestFormController extends Controller
                     'requestsCount'   =>  $report->requestForms()->where('user_id',$user->id)->count(),
                 ];
             }
+            if ((new AppController())->isApi($request))
+                $dashboardReports=$dashboardReports['data'];
         }
 
         $totalCount=$toApprove->count()+$active->count();
