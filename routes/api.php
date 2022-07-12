@@ -144,6 +144,16 @@ Route::group(['prefix'=>'1.0.0'],function (){
                 'roles' =>['employee','management']
             ]);
 
+            Route::post('/add-remarks/{id}', [
+                "uses"  => "App\Http\Controllers\RequestFormController@appendRemarks",
+                'roles' =>['employee','management']
+            ]);
+
+            Route::get('/print/{id}', [
+                "uses"  => "App\Http\Controllers\RequestFormController@print",
+                'roles' =>['employee','management']
+            ]);
+
         });
 
         Route::group(['prefix'=>'projects'],function (){
@@ -208,6 +218,26 @@ Route::group(['prefix'=>'1.0.0'],function (){
                 'roles' =>['administrator']
             ]);
 
+        });
+
+        Route::group(['prefix'=>'gases'],function () {
+
+            Route::get('/', [
+                "uses"  => "App\Http\Controllers\GasController@edit",
+                'roles' =>['administrator']
+            ]);
+
+            Route::post('/', [
+                "uses" => "App\Http\Controllers\GasController@update",
+                'roles' => ['administrator']
+            ]);
+        });
+
+        Route::group(['prefix'=>'notifications'],function() {
+            Route::get('/', [
+                "uses" => "App\Http\Controllers\NotificationController@index",
+                'roles' => ['employee', 'management']
+            ]);
         });
 
     });

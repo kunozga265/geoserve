@@ -10,15 +10,22 @@ use Inertia\Inertia;
 
 class GasController extends Controller
 {
-    public function edit()
+    public function edit(Request $request)
     {
         $petrol=Gas::where('type','Petrol')->first();
         $diesel=Gas::where('type','Diesel')->first();
-
-        return Inertia::render('Vehicles/FuelPrices',[
+        $response=[
             'petrol'    => $petrol->perLitre,
             'diesel'   => $diesel->perLitre,
-        ]);
+        ];
+
+        if ((new AppController())->isApi($request)) {
+            //API Response
+            return response()->json($response);
+        }else{
+            //Web Response
+            return Inertia::render('Vehicles/FuelPrices',$response);
+        }
     }
 
     public function update(Request $request)
