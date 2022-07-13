@@ -374,7 +374,7 @@
             },
             deleteProject(){
                 this.form
-                    .delete(this.route('projects.delete',{'id':this.project.id}),{
+                    .post(this.route('projects.delete',{'id':this.project.id}),{
                         preserveScroll:true,
                         onSuccess: () => this.deleteDialog=false
                     })

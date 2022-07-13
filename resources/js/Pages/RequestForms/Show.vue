@@ -824,14 +824,14 @@
             },
             deleteRequest(){
                 this.form
-                    .delete(this.route('request-forms.delete',{'id':this.request.data.id}),{
+                    .post(this.route('request-forms.delete',{'id':this.request.data.id}),{
                         preserveScroll: true,
                         onSuccess: () => this.deleteDialog=false,
                     })
             },
             discardRequest(){
                 this.form
-                    .delete(this.route('request-forms.discard',{'id':this.request.data.id}),{
+                    .post(this.route('request-forms.discard',{'id':this.request.data.id}),{
                         onSuccess: () => this.discardDialog=false,
                     })
             },

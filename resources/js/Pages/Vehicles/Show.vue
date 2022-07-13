@@ -404,7 +404,7 @@
             },
             deleteVehicle(){
                 this.form
-                    .delete(this.route('vehicles.delete',{'id':this.vehicle.id}),{
+                    .post(this.route('vehicles.delete',{'id':this.vehicle.id}),{
                         preserveScroll:true,
                         onSuccess: () => this.deleteDialog=false
                     })

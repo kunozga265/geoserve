@@ -110,7 +110,7 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['management']
         ])->name('projects.verify');
 
-        Route::delete('/delete/{id}', [
+        Route::post('/delete/{id}', [
             "uses"  => "App\Http\Controllers\ProjectController@destroy",
             'roles' => ['administrator','management']
         ])->name('projects.delete');
@@ -152,7 +152,7 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['management']
         ])->name('vehicles.verify');
 
-        Route::delete('/delete/{id}', [
+        Route::post('/delete/{id}', [
             "uses"  => "App\Http\Controllers\VehicleController@destroy",
             'roles' => ['administrator','management']
         ])->name('vehicles.delete');
@@ -210,12 +210,12 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['employee','management']
         ])->name('request-forms.deny');
 
-        Route::delete('/delete/{id}', [
+        Route::post('/delete/{id}', [
             "uses"  => "App\Http\Controllers\RequestFormController@destroy",
             'roles' =>['employee','management']
         ])->name('request-forms.delete');
 
-        Route::delete('/discard/{id}', [
+        Route::post('/discard/{id}', [
             "uses"  => "App\Http\Controllers\RequestFormController@discard",
             'roles' =>['employee','management']
         ])->name('request-forms.discard');
