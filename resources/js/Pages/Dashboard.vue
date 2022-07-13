@@ -57,8 +57,9 @@
         <div class="py-6">
             <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
 
-                <div v-if="checkRole($page.props.auth.data,'unverified')">
-                    Unverified User
+                <div v-if="checkRole($page.props.auth.data,'unverified')" class="mt-8">
+                    <img class="mx-auto w-24" :src="fileUrl('images/awaiting-verification.png')" alt="">
+                    <div class="text-sm text-center">Awaiting Verification</div>
                 </div>
                 <div v-else-if="checkRole($page.props.auth.data,'disabled')">
                     Disabled User
