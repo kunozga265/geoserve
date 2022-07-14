@@ -122,6 +122,7 @@ class RequestFormResource extends JsonResource
                     'purpose'                             =>  $this->purpose,
                     'vehicle'                             =>  $this->vehicle,
                     'mileage'                             =>  $this->mileage,
+                    'project'                             =>  $this->project,
                     'lastRefillDate'                      =>  $this->lastRefillDate,
                     'lastRefillFuelReceived'              =>  $this->lastRefillFuelReceived,
                     'lastRefillMileageCovered'            =>  $this->lastRefillMileageCovered,

@@ -525,6 +525,7 @@ class RequestFormController extends Controller
                 'fuelRequestedLitres'           =>  $request->fuelRequestedLitres,
                 'fuelRequestedMoney'            =>  $request->fuelRequestedMoney,
                 'purpose'                       =>  $request->purpose,
+                'project_id'                    =>  $request->projectId,
 
                 //Vehicle Details
                 'vehicle_id'                    =>  $request->vehicleId,
@@ -1031,6 +1032,7 @@ class RequestFormController extends Controller
                         'fuelRequestedLitres'           =>  $request->fuelRequestedLitres,
                         'fuelRequestedMoney'            =>  $request->fuelRequestedMoney,
                         'purpose'                       =>  $request->purpose,
+                        'project_id'                    =>  $request->projectId,
                         'vehicle_id'                    =>  $request->vehicleId,
                         'mileage'                       =>  $vehicle->mileage,
                         'lastRefillDate'                =>  $vehicle->lastRefillDate,

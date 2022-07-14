@@ -258,15 +258,15 @@
                                     <div class="text-gray-600 font-semibold">Person Collecting Advance</div>
                                     <div>{{request.data.personCollectingAdvance}}</div>
                                 </div>
-                                <div v-if="request.data.type==='CASH' || request.data.type==='MATERIALS'" class="border-b px-4 py-3 flex justify-between text-sm">
+                                <div v-if="request.data.type!=='VEHICLE_MAINTENANCE'" class="border-b px-4 py-3 flex justify-between text-sm">
                                     <div class="text-gray-600 font-semibold">Project Name</div>
                                     <div v-if="request.data.project" >{{request.data.project.name}}</div>
                                 </div>
-                                <div v-if="request.data.type==='CASH' || request.data.type==='MATERIALS'" class="border-b px-4 py-3 flex justify-between text-sm">
+                                <div v-if="request.data.type!=='VEHICLE_MAINTENANCE'"  class="border-b px-4 py-3 flex justify-between text-sm">
                                     <div class="text-gray-600 font-semibold">Project Client</div>
                                     <div v-if="request.data.project">{{request.data.project.client}}</div>
                                 </div>
-                                <div v-if="request.data.type==='CASH' || request.data.type==='MATERIALS'" class="border-b px-4 py-3 flex justify-between text-sm">
+                                <div v-if="request.data.type!=='VEHICLE_MAINTENANCE'"  class="border-b px-4 py-3 flex justify-between text-sm">
                                     <div class="text-gray-600 font-semibold">Project Site</div>
                                     <div v-if="request.data.project">{{request.data.project.site}}</div>
                                 </div>

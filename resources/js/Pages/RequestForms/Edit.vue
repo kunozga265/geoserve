@@ -44,14 +44,14 @@
                                     </select>
                                 </div>
 
-                                <div v-if="form.type !=='FUEL'" class="grid grid-cols-1 md:grid-cols-2">
-                                    <div class="p-2 mb-2">
+                                <div class="grid grid-cols-1 md:grid-cols-2">
+                                    <div v-if="form.type !=='FUEL'" class="p-2 mb-2">
                                         <jet-label for="personCollectingAdvance" value="Person Collecting Advance" />
                                         <jet-input id="personCollectingAdvance" type="text" class="block w-full" v-model="form.personCollectingAdvance" autocomplete="geoserve-person-collecting-advance"/>
                                     </div>
 
-                                    <div v-if="form.type !== 'VEHICLE_MAINTENANCE'" class="p-2 mb-2">
-                                        <jet-label for="project" value="Project" />
+                                    <div v-if="form.type !== 'VEHICLE_MAINTENANCE'" class="p-2 mb-2" :class="{'md:col-span-2':form.type ==='FUEL'}">
+                                        <jet-label for="project" value="Project Name" />
                                         <select v-model="projectIndex" id="project" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"  required>
                                             <option value="-1">None</option>
                                             <option
@@ -369,7 +369,7 @@
           }
         },
         created(){
-            if(this.request.data.type === "CASH" || this.request.data.type === "MATERIALS" && this.request.data.project) {
+            if(this.request.data.type !== "VEHICLE_MAINTENANCE" && this.request.data.project) {
                 this.projectIndex = (this.projects.data).map(function (e) {
                     return e.name;
                 }).indexOf(this.request.data.project.name)
@@ -513,7 +513,7 @@
                 })
             },
             removeRecord(index){
-                this.information.splice(index,1)
+                this.form.information.splice(index,1)
             },
             fileUpload(file){
                 const reader=new FileReader();

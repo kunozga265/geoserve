@@ -81,19 +81,19 @@
             <td>{{$requestForm->personCollectingAdvance}}</td>
         </tr>
     @endif
-    @if($requestForm->type=="CASH" || $requestForm->type=="MATERIALS")
+    @if($requestForm->type!="VEHICLE_MAINTENANCE")
         <tr>
             <td>Project Name</td>
             <td>{{$requestForm->project?$requestForm->project->name:""}}</td>
         </tr>
     @endif
-    @if($requestForm->type=="CASH" || $requestForm->type=="MATERIALS")
+    @if($requestForm->type!="VEHICLE_MAINTENANCE")
         <tr>
             <td>Project Client</td>
             <td>{{$requestForm->project?$requestForm->project->client:""}}</td>
         </tr>
     @endif
-    @if($requestForm->type=="CASH" || $requestForm->type=="MATERIALS")
+    @if($requestForm->type!="VEHICLE_MAINTENANCE")
         <tr>
             <td>Project Site</td>
             <td>{{$requestForm->project?$requestForm->project->site:""}}</td>
