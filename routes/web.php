@@ -114,6 +114,11 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             "uses"  => "App\Http\Controllers\ProjectController@destroy",
             'roles' => ['administrator','management']
         ])->name('projects.delete');
+
+        Route::post('/close/{id}', [
+            "uses"  => "App\Http\Controllers\ProjectController@close",
+            'roles' => ['administrator','management']
+        ])->name('projects.close');
     });
 
     Route::group(['prefix'=>'vehicles'],function(){
@@ -156,6 +161,11 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             "uses"  => "App\Http\Controllers\VehicleController@destroy",
             'roles' => ['administrator','management']
         ])->name('vehicles.delete');
+
+        Route::post('/close/{id}', [
+            "uses"  => "App\Http\Controllers\VehicleController@close",
+            'roles' => ['administrator','management']
+        ])->name('vehicles.close');
 
         Route::get('/gases', [
             "uses"  => "App\Http\Controllers\GasController@edit",

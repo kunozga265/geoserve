@@ -186,6 +186,11 @@ Route::group(['prefix'=>'1.0.0'],function (){
                 'roles' => ['administrator','management']
             ]);
 
+            Route::post('/close/{id}', [
+                "uses"  => "App\Http\Controllers\ProjectController@close",
+                'roles' => ['administrator','management']
+            ]);
+
         });
 
         Route::group(['prefix'=>'vehicles'],function (){
@@ -216,6 +221,11 @@ Route::group(['prefix'=>'1.0.0'],function (){
             Route::delete("/delete/{id}",[
                 "uses" => "App\Http\Controllers\VehicleController@destroy",
                 'roles' =>['administrator']
+            ]);
+
+            Route::post('/close/{id}', [
+                "uses"  => "App\Http\Controllers\VehicleController@close",
+                'roles' => ['administrator','management']
             ]);
 
         });

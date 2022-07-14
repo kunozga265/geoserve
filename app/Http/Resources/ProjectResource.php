@@ -20,6 +20,7 @@ class ProjectResource extends JsonResource
             "client"                        =>  $this->client,
             "site"                          =>  $this->site,
             "verified"                      =>  intval($this->verified),
+            "status"                        =>  intval($this->status),
         ];
     }
 }

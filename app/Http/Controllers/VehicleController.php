@@ -24,7 +24,7 @@ class VehicleController extends Controller
         if($user->hasRole('management') || $user->hasRole('administrator')){
             $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->get();
         }else
-            $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->where('verified',1)->get();
+            $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->where('verified',1)->where('status', 1)->get();
 
         if ((new AppController())->isApi($request))
             //API Response
@@ -73,6 +73,7 @@ class VehicleController extends Controller
             "lastRefillMileageCovered"      =>  $request->lastRefillMileageCovered,
             "gas_id"                        =>  $request->gasId,
             "verified"                      =>  false,
+            "status"                        =>  true,
         ]);
 
         //Run notifications
@@ -267,6 +268,41 @@ class VehicleController extends Controller
             }else{
                 //Web Response
                 return Redirect::back()->with('success','Vehicle verified');
+            }
+        }
+        else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'Vehicle not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Vehicle not found');
+            }
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     */
+    public function close(Request $request, $id)
+    {
+        $vehicle=Vehicle::find($id);
+
+        if (is_object($vehicle)){
+
+            $vehicle->update([
+                "status"  =>  false,
+            ]);
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new VehicleResource($vehicle));
+            }else{
+                //Web Response
+                return Redirect::back()->with('success','Vehicle closed');
             }
         }
         else {

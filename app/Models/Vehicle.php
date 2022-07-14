@@ -29,6 +29,7 @@ class Vehicle extends Model
         "lastRefillMileageCovered",
         "gas_id",
         "verified",
+        "status",
     ];
 
     protected $hidden=[

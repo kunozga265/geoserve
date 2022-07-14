@@ -20,6 +20,7 @@ class Project extends Model
         "client",
         "site",
         "verified",
+        "status",
     ];
 
     protected $hidden=[

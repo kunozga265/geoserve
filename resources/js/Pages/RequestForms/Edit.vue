@@ -58,6 +58,7 @@
                                                 v-for="(project,index) in projects.data"
                                                 :value="index"
                                                 :key="index"
+                                                v-if="project.verified==1 && project.status==1"
                                             >
                                                 {{ project.name}}
                                             </option>
@@ -85,6 +86,7 @@
                                                 v-for="(vehicle,index) in vehicles.data"
                                                 :value="vehicle.id"
                                                 :key="index"
+                                                v-if="vehicle.verified==1 && vehicle.status==1"
                                             >
                                                 {{ vehicle.vehicleRegistrationNumber}}
                                             </option>
@@ -239,6 +241,7 @@
                                                 v-for="(vehicle,index) in vehicles.data"
                                                 :value="index"
                                                 :key="index"
+                                                v-if="vehicle.verified==1 && vehicle.status==1"
                                             >
                                                 {{ vehicle.vehicleRegistrationNumber}}
                                             </option>

@@ -84,7 +84,8 @@
                                     <div class="position">{{ numberWithCommas(vehicle.mileage) }}KM</div>
                                 </div>
                                 <div class=" h-10 w-10 flex justify-center items-center rounded-full bg-blue-700">
-                                    <i class="mdi mdi-check-decagram text-white"></i>
+                                    <i v-if="vehicle.status==1" class="mdi mdi-check-decagram text-white"></i>
+                                    <i v-else class="mdi mdi-lock text-white"></i>
                                 </div>
                             </div>
                             <div>

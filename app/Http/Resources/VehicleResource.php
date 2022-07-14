@@ -24,6 +24,7 @@ class VehicleResource extends JsonResource
             "lastRefillMileageCovered"      =>  $this->lastRefillMileageCovered,
             "gas"                           =>  new GasResource($this->gas),
             "verified"                      =>  intval($this->verified),
+            "status"                        =>  intval($this->status),
         ];
     }
 }

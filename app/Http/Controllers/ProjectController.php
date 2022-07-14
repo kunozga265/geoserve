@@ -22,7 +22,7 @@ class ProjectController extends Controller
             $projects= Project::orderBy('name','asc')->get();
 
         }else {
-            $projects = Project::orderBy('name', 'asc')->where('verified', 1)->get();
+            $projects = Project::orderBy('name', 'asc')->where('verified', 1)->where('status', 1)->get();
         }
 
 
@@ -60,6 +60,7 @@ class ProjectController extends Controller
             "client"     =>  $request->client,
             "site"       =>  $request->site,
             "verified"   =>  false,
+            "status"     =>  true,
         ]);
 
         //Run notifications
@@ -233,6 +234,41 @@ class ProjectController extends Controller
             }else{
                 //Web Response
                 return Redirect::back()->with('success','Project Verified');
+            }
+        }
+        else{
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'Project not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','Project not found');
+            }
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     */
+    public function close(Request $request, $id)
+    {
+        $project=Project::find($id);
+
+        if (is_object($project)){
+
+            $project->update([
+                "status"  =>  false,
+            ]);
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(new ProjectResource($project));
+            }else{
+                //Web Response
+                return Redirect::back()->with('success','Project closed');
             }
         }
         else{
