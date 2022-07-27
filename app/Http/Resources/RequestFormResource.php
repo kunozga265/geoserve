@@ -50,7 +50,7 @@ class RequestFormResource extends JsonResource
                     'total'                               =>  $this->total,
                     'requestedBy'                         =>  new UserResource($this->user),
                     'dateRequested'                       =>  $this->dateRequested,
-                    'stagesApprovalPosition'              =>  $this->approvalPosition($this->stagesApprovalPosition),
+                    'nextPositionToApprove'              =>  $this->approvalPosition($this->stagesApprovalPosition),
                     'stagesApprovalStatus'                =>  $this->stagesApprovalStatus,
                     'currentStage'                        =>  $this->currentStage,
                     'totalStages'                         =>  $this->totalStages,
@@ -86,7 +86,7 @@ class RequestFormResource extends JsonResource
                     'total'                               =>  $this->total,
                     'requestedBy'                         =>  new UserResource($this->user),
                     'dateRequested'                       =>  $this->dateRequested,
-                    'stagesApprovalPosition'              =>  $this->approvalPosition($this->stagesApprovalPosition),
+                    'nextPositionToApprove'              =>  $this->approvalPosition($this->stagesApprovalPosition),
                     'stagesApprovalStatus'                =>  $this->stagesApprovalStatus,
                     'currentStage'                        =>  $this->currentStage,
                     'totalStages'                         =>  $this->totalStages,
@@ -128,7 +128,7 @@ class RequestFormResource extends JsonResource
                     'lastRefillMileageCovered'            =>  $this->lastRefillMileageCovered,
                     'requestedBy'                         =>  new UserResource($this->user),
                     'dateRequested'                       =>  $this->dateRequested,
-                    'stagesApprovalPosition'              =>  $this->approvalPosition($this->stagesApprovalPosition),
+                    'nextPositionToApprove'              =>  $this->approvalPosition($this->stagesApprovalPosition),
                     'stagesApprovalStatus'                =>  $this->stagesApprovalStatus,
                     'currentStage'                        =>  $this->currentStage,
                     'totalStages'                         =>  $this->totalStages,
@@ -161,9 +161,9 @@ class RequestFormResource extends JsonResource
     public function approvalPosition($positionId){
         $position=Position::find($positionId);
         if(is_object($position))
-            return new PositionResource($position);
+            return $position->title;
         else
-            return null;
+            return "Manager";
     }
 
     private function getApprovedBy($id){
