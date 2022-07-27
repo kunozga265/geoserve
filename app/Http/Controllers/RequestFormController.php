@@ -85,6 +85,9 @@ class RequestFormController extends Controller
                     'requestsCount'   =>  $report->requestForms()->where('user_id',$user->id)->count(),
                 ];
             }
+
+            if ((new AppController())->isApi($request))
+                $dashboardReports=$dashboardReports['data'];
         }else{
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
             $awaitingApprovalCount=$toApprove->count();
