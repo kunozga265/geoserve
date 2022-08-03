@@ -160,10 +160,12 @@ class RequestFormResource extends JsonResource
 
     public function approvalPosition($positionId){
         $position=Position::find($positionId);
-        if(is_object($position))
-            return $position->title;
-        else
-            return "Manager";
+
+        if(is_object($position)){
+            return [$position->title];
+        }else{
+            return ['Managing Director','Contracts Manager'];
+        }
     }
 
     private function getApprovedBy($id){
