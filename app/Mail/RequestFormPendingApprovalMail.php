@@ -11,37 +11,20 @@ use Illuminate\Queue\SerializesModels;
 class RequestFormPendingApprovalMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
-    public $requestedBy;
     public $userName;
-    public $positionTitle;
-    public $emailSubject;
+    public $_message;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$requestForm)
+    public function __construct($user,$_message,$_subject)
     {
         $this->userName=$user->firstName." ".$user->lastName;
-        $this->requestedBy=$requestForm->user->firstName." ".$requestForm->user->lastName;
-        $this->positionTitle=$requestForm->user->position->title;
-
-        switch ($requestForm->type){
-            case "CASH":
-                $this->emailSubject="Cash Request [$requestForm->code] Pending Approval";
-                break;
-            case "MATERIALS":
-                $this->emailSubject="Materials Request [$requestForm->code] Pending Approval";
-                break;
-            case "VEHICLE_MAINTENANCE":
-                $this->emailSubject="Vehicle Maintenance Request [$requestForm->code] Pending Approval";
-                break;
-            default:
-                $this->emailSubject="Fuel Request [$requestForm->code] Pending Approval";
-                break;
-
-        }
+        $this->_subject=$_subject;
+        $this->_message=$_message;
     }
 
     /**
@@ -51,6 +34,6 @@ class RequestFormPendingApprovalMail extends Mailable implements ShouldQueue, Sh
      */
     public function build()
     {
-        return $this->view('emails.request-form-pending-approval')->subject($this->emailSubject);
+        return $this->view('emails.request-form-pending-approval')->subject($this->_subject);
     }
 }

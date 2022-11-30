@@ -13,21 +13,19 @@ class RequestFormDeniedMail extends Mailable implements ShouldQueue, ShouldBeUni
     use Queueable, SerializesModels;
 
     public $userName;
-    public $deniedBy;
-    public $emailSubject;
-    public $positionTitle;
+    public $_message;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$deniedBy,$title)
+    public function __construct($user,$_message,$_subject)
     {
         $this->userName=$user->firstName." ".$user->lastName;
-        $this->deniedBy=$deniedBy->firstName." ".$deniedBy->lastName;
-        $this->emailSubject=$title. " Denied";
-        $this->positionTitle=$deniedBy->position->title;
+        $this->_message=$_message;
+        $this->_subject=$_subject;
     }
 
     /**
@@ -37,6 +35,6 @@ class RequestFormDeniedMail extends Mailable implements ShouldQueue, ShouldBeUni
      */
     public function build()
     {
-        return $this->view('emails.request-form-denied')->subject($this->emailSubject);
+        return $this->view('emails.request-form-denied')->subject($this->_subject);
     }
 }

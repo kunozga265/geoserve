@@ -13,17 +13,17 @@ class RequestFormInitiatedMail extends Mailable implements ShouldQueue, ShouldBe
     use Queueable, SerializesModels;
 
     public $userName;
-    public $emailSubject;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$title)
+    public function __construct($name,$subject)
     {
-        $this->userName=$user->firstName." ".$user->lastName;
-        $this->emailSubject=$title. " Initiated";
+        $this->userName=$name;
+        $this->_subject=$subject;
     }
 
     /**
@@ -33,6 +33,6 @@ class RequestFormInitiatedMail extends Mailable implements ShouldQueue, ShouldBe
      */
     public function build()
     {
-        return $this->view('emails.request-form-initiated')->subject($this->emailSubject);
+        return $this->view('emails.request-form-initiated')->subject($this->_subject);
     }
 }

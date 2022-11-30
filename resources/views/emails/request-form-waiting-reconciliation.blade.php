@@ -9,7 +9,7 @@
 </head>
 <body>
 <p>Dear {{$userName}},</p>
-<p>{{$title}} has been initiated. Please ensure all required information has been submitted to reconcile this request.</p>
+<p>{{$_message}}</p>
 <p>Regards</p>
 </body>
 </html>

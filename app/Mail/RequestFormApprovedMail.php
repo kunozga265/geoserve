@@ -14,34 +14,19 @@ class RequestFormApprovedMail extends Mailable implements ShouldQueue, ShouldBeU
     public $approvedBy;
     public $userName;
     public $positionTitle;
-    public $emailSubject;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($requestForm, $approvedBy)
+    public function __construct($requestForm, $approvedBy,$subject)
     {
         $this->approvedBy=$approvedBy->firstName." ".$approvedBy->lastName;
         $this->userName=$requestForm->user->firstName." ".$requestForm->user->lastName;
         $this->positionTitle=$approvedBy->position->title;
-
-        switch ($requestForm->type){
-            case "CASH":
-                $this->emailSubject="Cash Request [$requestForm->code] Approved";
-                break;
-            case "MATERIALS":
-                $this->emailSubject="Materials Request [$requestForm->code] Approved";
-                break;
-            case "VEHICLE_MAINTENANCE":
-                $this->emailSubject="Vehicle Maintenance Request [$requestForm->code] Approved";
-                break;
-            default:
-                $this->emailSubject="Fuel Request [$requestForm->code] Approved";
-                break;
-
-        }
+        $this->_subject=$subject;
     }
 
     /**
@@ -51,6 +36,6 @@ class RequestFormApprovedMail extends Mailable implements ShouldQueue, ShouldBeU
      */
     public function build()
     {
-        return $this->view('emails.request-form-approved')->subject($this->emailSubject);
+        return $this->view('emails.request-form-approved')->subject($this->_subject);
     }
 }

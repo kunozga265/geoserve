@@ -13,19 +13,18 @@ class RequestFormWaitingReconciliationMail extends Mailable implements ShouldQue
     use Queueable, SerializesModels;
 
     public $userName;
-    public $emailSubject;
-    public $title;
-
+    public $_message;
+    public $_subject;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($accountant,$title)
+    public function __construct($accountant,$message,$subject)
     {
         $this->userName=$accountant->firstName." ".$accountant->lastName;
-        $this->title=$title;
-        $this->emailSubject=$title. " Waiting Reconciliation";
+        $this->_subject=$subject;
+        $this->_message=$message;
     }
 
     /**
@@ -35,6 +34,6 @@ class RequestFormWaitingReconciliationMail extends Mailable implements ShouldQue
      */
     public function build()
     {
-        return $this->view('emails.request-form-waiting-reconciliation')->subject($this->emailSubject);
+        return $this->view('emails.request-form-waiting-reconciliation')->subject($this->_subject);
     }
 }

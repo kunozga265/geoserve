@@ -9,7 +9,7 @@
 </head>
 <body>
 <p>Dear {{$userName}},</p>
-<p>The request has been denied by {{$deniedBy}} ({{$positionTitle}}). View the request to see the reason why.</p>
+<p>{{$_message}}</p>
 <p>Regards</p>
 </body>
 </html>

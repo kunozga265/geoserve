@@ -13,18 +13,19 @@ class RequestFormReconciledMail extends Mailable implements ShouldQueue, ShouldB
     use Queueable, SerializesModels;
 
     public $userName;
-    public $emailSubject;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$title)
+    public function __construct($name,$subject)
     {
-        $this->userName=$user->firstName." ".$user->lastName;
-        $this->emailSubject=$title. " Reconciled";
+        $this->userName=$name;
+        $this->_subject=$subject;
     }
+
 
     /**
      * Build the message.
@@ -33,6 +34,6 @@ class RequestFormReconciledMail extends Mailable implements ShouldQueue, ShouldB
      */
     public function build()
     {
-        return $this->view('emails.request-form-reconciled')->subject($this->emailSubject);
+        return $this->view('emails.request-form-reconciled')->subject($this->_subject);
     }
 }

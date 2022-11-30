@@ -11,16 +11,16 @@ use Illuminate\Queue\SerializesModels;
 class VehicleNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
-    public $vehicle;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($vehicle)
+    public function __construct($_subject)
     {
-        $this->vehicle=$vehicle;
+        $this->_subject=$_subject;
     }
 
     /**
@@ -30,7 +30,6 @@ class VehicleNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
      */
     public function build()
     {
-        $subject="New Vehicle: ".$this->vehicle->vehicleRegistrationNumber;
-        return $this->view('emails.vehicle-new')->subject($subject);
+        return $this->view('emails.vehicle-new')->subject($this->_subject);
     }
 }

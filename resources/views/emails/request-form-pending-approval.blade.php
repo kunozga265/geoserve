@@ -9,7 +9,7 @@
 </head>
 <body>
 <p>Dear {{$userName}},</p>
-<p>{{$requestedBy}} ({{$positionTitle}}) has submitted a request. May you please attend to it as soon as possible.</p>
+<p>{{$_message}}</p>
 <p>Regards</p>
 </body>
 </html>

@@ -13,6 +13,7 @@ use App\Models\RequestForm;
 use App\Models\User;
 use App\Models\Vehicle;
 use Barryvdh\DomPDF\Facade\Pdf;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;

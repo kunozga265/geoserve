@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,17 +11,16 @@ use Illuminate\Queue\SerializesModels;
 class UserNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
-
-    public $user;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($_subject)
     {
-        $this->user=$user;
+        $this->_subject=$_subject;
     }
 
     /**
@@ -32,7 +30,6 @@ class UserNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
      */
     public function build()
     {
-        $name=$this->user->firstName. " " .$this->user->lastName;
-        return $this->view('emails.new-user')->subject("New User: ".$name);
+        return $this->view('emails.new-user')->subject($this->_subject);
     }
 }

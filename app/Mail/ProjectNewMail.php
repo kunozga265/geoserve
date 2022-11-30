@@ -11,16 +11,16 @@ use Illuminate\Queue\SerializesModels;
 class ProjectNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
-    public $project;
+    public $_subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($project)
+    public function __construct($_subject)
     {
-        $this->project=$project;
+        $this->_subject=$_subject;
     }
 
     /**
@@ -30,7 +30,6 @@ class ProjectNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
      */
     public function build()
     {
-        $subject="New Project: ".$this->project->name;
-        return $this->view('emails.project-new')->subject($subject);
+        return $this->view('emails.project-new')->subject($this->_subject);
     }
 }
