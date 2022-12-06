@@ -154,6 +154,11 @@ Route::group(['prefix'=>'1.0.0'],function (){
                 'roles' =>['employee','management']
             ]);
 
+            Route::get('/find/{code}', [
+                "uses"  => "App\Http\Controllers\RequestFormController@findRequestForm",
+                'roles' =>['employee','management']
+            ]);
+
         });
 
         Route::group(['prefix'=>'projects'],function (){
