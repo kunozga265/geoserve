@@ -13,6 +13,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AppController extends Controller
 {
+    public $paginate = 20;
+
     public function getAuthUser(Request $request)
     {
         if ($this->isApi($request)) {

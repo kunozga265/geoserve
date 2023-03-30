@@ -272,7 +272,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users=User::orderBy('firstName','asc')->get();
+        $users=User::orderBy('firstName','asc')->paginate((new AppController())->paginate);
 
         //Web
         $positions=Position::orderBy('title','asc')->get();
@@ -330,7 +330,7 @@ class UserController extends Controller
 
             //Requests section
             $activeRequests=$user->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
-            $closedRequests=$user->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$user->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->paginate((new AppController())->paginate);
 
             $response=[
                 'user'                              =>  new UserResource($user),

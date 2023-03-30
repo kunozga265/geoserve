@@ -640,7 +640,7 @@
                             </div>
                         </div>
                         <div v-show="request.data.remarks.length > 0" class="page-section-content">
-                            <div class="grid grid-cols-1 md:grid-cols-2">
+                            <div class="">
                                 <div class="card p-0"
                                      v-for="(remark,index) in request.data.remarks"
                                      :key="index"

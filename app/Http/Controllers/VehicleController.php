@@ -22,9 +22,9 @@ class VehicleController extends Controller
         $user=(new AppController())->getAuthUser($request);
 
         if($user->hasRole('management') || $user->hasRole('administrator')){
-            $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->get();
+            $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->paginate((new AppController())->paginate);
         }else
-            $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->where('verified',1)->where('status', 1)->get();
+            $vehicles= Vehicle::orderBy('vehicleRegistrationNumber','asc')->where('verified',1)->where('status', 1)->paginate((new AppController())->paginate);
 
         if ((new AppController())->isApi($request))
             //API Response
@@ -118,7 +118,7 @@ class VehicleController extends Controller
 
             //Requests section
             $activeRequests=$vehicle->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
-            $closedRequests=$vehicle->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$vehicle->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->paginate((new AppController())->paginate);
 
             $response=[
                 'vehicle'                           => new VehicleResource($vehicle),

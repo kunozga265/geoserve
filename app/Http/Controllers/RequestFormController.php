@@ -175,7 +175,7 @@ class RequestFormController extends Controller
 
             //Requests section
             $activeRequests=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
-            $closedRequests=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+            $closedRequests=RequestForm::where('approval_by_id',$user->id)->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->paginate((new AppController())->paginate);
 
         }else{
             $totalRequests=$user->approvedRequests->count();
@@ -194,7 +194,7 @@ class RequestFormController extends Controller
 
             //Requests section
             $activeRequests=$user->approvedRequests()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
-            $closedRequests=$user->approvedRequests()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$user->approvedRequests()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->paginate((new AppController())->paginate);
         }
         $response=[
             'totalRequests'                     => $totalRequests,
@@ -235,11 +235,11 @@ class RequestFormController extends Controller
 
         $awaitingInitiation=RequestForm::where('approvalStatus',1)->get();
         $awaitingReconciliation=RequestForm::where('approvalStatus',3)->get();
-        $reconciled=RequestForm::where('approvalStatus',4)->get();
+        $reconciled=RequestForm::where('approvalStatus',4)->paginate((new AppController())->paginate);
 
         $awaitingInitiationCount=$awaitingInitiation->count();
         $awaitingReconciliationCount=$awaitingReconciliation->count();
-        $reconciledCount=$reconciled->count();
+        $reconciledCount=RequestForm::where('approvalStatus',4)->count();
 
         $response=[
             'totalRequests'                     => $totalRequests,
@@ -317,7 +317,7 @@ class RequestFormController extends Controller
 
             //Requests section
             $activeRequests=RequestForm::where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
-            $closedRequests=RequestForm::where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+            $closedRequests=RequestForm::where('approvalStatus','>',3)->orderBy('dateRequested','desc')->paginate((new AppController())->paginate);
         }else {
             $totalRequests=$user->requestForms->count();
 
@@ -335,7 +335,7 @@ class RequestFormController extends Controller
 
             //Requests section
             $activeRequests=$user->requestForms()->where('approvalStatus','<',4)->orderBy('dateRequested','desc')->get();
-            $closedRequests=$user->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->get();
+            $closedRequests=$user->requestForms()->where('approvalStatus','>',3)->orderBy('dateRequested','desc')->paginate((new AppController())->paginate);
         }
 
         $response=[
