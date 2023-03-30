@@ -157,38 +157,44 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card" v-if="unverifiedUsersCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
-                                    <div class="flex justify-start items-center">
-                                        <div class="ml-3 mr-1 relative">
-                                            <i class="mdi mdi-account-supervisor-circle" style="font-size: 32px; color:#eab308"></i>
+                                <div  class="card" v-if="unverifiedUsersCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
+                                    <inertia-link :href="route('users')">
+                                        <div class="flex justify-start items-center">
+                                            <div class="ml-3 mr-1 relative">
+                                                <i class="mdi mdi-account-supervisor-circle" style="font-size: 32px; color:#eab308"></i>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="heading-font" style="font-weight: 600;">Unverified Users</div>
+                                                <div class="text-sm text-gray-400">{{unverifiedUsersCount}} {{unverifiedUsersCount==1?'User':'Users'}}</div>
+                                            </div>
                                         </div>
-                                        <div class="ml-4">
-                                            <div class="heading-font" style="font-weight: 600;">Unverified Users</div>
-                                            <div class="text-sm text-gray-400">{{unverifiedUsersCount}} {{unverifiedUsersCount==1?'User':'Users'}}</div>
-                                        </div>
-                                    </div>
+                                    </inertia-link>
                                 </div>
                                 <div class="card" v-if="unverifiedProjectsCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
-                                    <div class="flex justify-start items-center">
-                                        <div class="ml-3 mr-1 relative">
-                                            <i class="mdi mdi-home-group" style="font-size: 32px; color:#eab308"></i>
+                                    <inertia-link :href="route('projects')">
+                                        <div class="flex justify-start items-center">
+                                            <div class="ml-3 mr-1 relative">
+                                                <i class="mdi mdi-home-group" style="font-size: 32px; color:#eab308"></i>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="heading-font" style="font-weight: 600;">Unverified Projects</div>
+                                                <div class="text-sm text-gray-400">{{unverifiedProjectsCount}} {{unverifiedProjectsCount==1?'Project':'Projects'}}</div>
+                                            </div>
                                         </div>
-                                        <div class="ml-4">
-                                            <div class="heading-font" style="font-weight: 600;">Unverified Projects</div>
-                                            <div class="text-sm text-gray-400">{{unverifiedProjectsCount}} {{unverifiedProjectsCount==1?'Project':'Projects'}}</div>
-                                        </div>
-                                    </div>
+                                    </inertia-link>
                                 </div>
                                 <div class="card" v-if="unverifiedVehiclesCount>0 && (checkRole($page.props.auth.data,'management') || checkRole($page.props.auth.data,'administrator'))">
-                                    <div class="flex justify-start items-center">
-                                        <div class="ml-3 mr-1 relative">
-                                            <i class="mdi mdi-car-multiple" style="font-size: 32px; color:#eab308"></i>
+                                    <inertia-link :href="route('vehicles')">
+                                        <div class="flex justify-start items-center">
+                                            <div class="ml-3 mr-1 relative">
+                                                <i class="mdi mdi-car-multiple" style="font-size: 32px; color:#eab308"></i>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="heading-font" style="font-weight: 600;">Unverified Vehicles</div>
+                                                <div class="text-sm text-gray-400">{{unverifiedVehiclesCount}} {{unverifiedVehiclesCount==1?'Vehicle':'Vehicles'}}</div>
+                                            </div>
                                         </div>
-                                        <div class="ml-4">
-                                            <div class="heading-font" style="font-weight: 600;">Unverified Vehicles</div>
-                                            <div class="text-sm text-gray-400">{{unverifiedVehiclesCount}} {{unverifiedVehiclesCount==1?'Vehicle':'Vehicles'}}</div>
-                                        </div>
-                                    </div>
+                                    </inertia-link>
                                 </div>
                             </div>
 
