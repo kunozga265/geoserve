@@ -1461,11 +1461,13 @@ class RequestFormController extends Controller
             $type=$this->getRequestTitle($requestForm->type);
             $filename=(new NotificationController())->getRequestTitle($requestForm->type,$requestForm->code)." - ".date('Y F j');
 
-            $now=Carbon::now('Africa/Lusaka')->format('j F Y H:i');
+            $now_d=Carbon::now('Africa/Lusaka')->format('jS F Y');
+            $now_t=Carbon::now('Africa/Lusaka')->format('H:i');
 
             $pdf = PDF::loadView('request', [
                 'type'          => $type,
-                'now'           => $now,
+                'date'          => $now_d,
+                'time'          => $now_t,
                 'statusMessage' => $this->getStatusMessage($requestForm),
                 'requestForm'   =>new RequestFormResource($requestForm)
             ]);

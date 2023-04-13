@@ -59,7 +59,7 @@
     </style>
 </head>
 <body>
-<p style="text-align: right; font-size: 12px">Printed on: {{$now}}</p>
+<p style="text-align: right; font-size: 12px">Generated on {{$date}} at {{$time}}</p>
 <img style="width: 300px" src="{{storage_path()."/images/logo-black.png"}}" alt="">
 <div style="font-size: 32px; font-weight: bold">Geoserve Engineering Group</div>
 <div style="font-size: 25px">{{$type}}</div>
