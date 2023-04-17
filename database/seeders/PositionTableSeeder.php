@@ -84,21 +84,45 @@ class PositionTableSeeder extends Seeder
         Position::create([
             "title"             =>  "Technical Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  json_encode([]),
+            "approvalStages"    =>  json_encode([
+                [
+                    "stage"     =>  1,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
+            ]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Projects Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  json_encode([]),
+            "approvalStages"    =>  json_encode([
+                [
+                    "stage"     =>  1,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
+            ]),
             "state"             =>  "Permanent",
         ]);
 
         Position::create([
             "title"             =>  "Operations and Bus Dev Specialist",
             "grade_id"          =>  3,
-            "approvalStages"    =>  json_encode([]),
+            "approvalStages"    =>  json_encode([
+                [
+                    "stage"     =>  1,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
+            ]),
             "state"             =>  "Permanent",
         ]);
 
@@ -109,6 +133,13 @@ class PositionTableSeeder extends Seeder
                 [
                     "stage"     =>  1,
                     "position"  =>  8,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ],
+                [
+                    "stage"     =>  2,
+                    "position"  =>  7,
                     "name"      =>  null,
                     "date"      =>  null,
                     "status"    =>  false
@@ -135,6 +166,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  3,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Permanent",
         ]);
@@ -157,6 +195,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  3,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Permanent",
         ]);
@@ -168,6 +213,13 @@ class PositionTableSeeder extends Seeder
                 [
                     "stage"     =>  1,
                     "position"  =>  8,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ],
+                [
+                    "stage"     =>  2,
+                    "position"  =>  7,
                     "name"      =>  null,
                     "date"      =>  null,
                     "status"    =>  false
@@ -194,6 +246,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  3,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Temporary",
         ]);
@@ -209,6 +268,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  2,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Temporary",
         ]);
@@ -231,6 +297,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  3,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Temporary",
         ]);
@@ -246,6 +319,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  2,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Permanent",
         ]);
@@ -268,6 +348,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  3,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Permanent",
         ]);
@@ -283,6 +370,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  2,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Permanent",
         ]);
@@ -298,6 +392,13 @@ class PositionTableSeeder extends Seeder
                     "date"      =>  null,
                     "status"    =>  false
                 ],
+                [
+                    "stage"     =>  2,
+                    "position"  =>  7,
+                    "name"      =>  null,
+                    "date"      =>  null,
+                    "status"    =>  false
+                ]
             ]),
             "state"             =>  "Permanent",
         ]);
