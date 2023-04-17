@@ -6,7 +6,7 @@
                     <div>
                         <span class="date rounded py-1 px-2 bg-gray-200 text-gray-600 text-xs font-bold uppercase">{{getDate(request.dateRequested*1000)}}</span>
                     </div>
-                    <div class="type"><i class="mdi mdi-cash" :class="getRequestIcon()"></i> {{ getRequestName(request.type) }}</div>
+                    <div class="type"><i class="mdi" :class="getRequestIcon()"></i> {{ getRequestName(request.type) }}</div>
                     <div class="name">{{request.requestedBy.firstName}} {{request.requestedBy.middleName}} {{request.requestedBy.lastName}}</div>
 
                 </div>
