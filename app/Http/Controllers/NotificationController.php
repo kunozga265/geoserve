@@ -18,8 +18,7 @@ use App\Mail\VehicleNewMail;
 use App\Models\Notification;
 use App\Models\Position;
 use App\Models\Role;
-use App\Models\User;
-use GuzzleHttp\Client;
+//use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
@@ -443,7 +442,7 @@ class NotificationController extends Controller
                 $this->pushNotification($accountant->position->title,$subject,$message);
 
                 //Send email to accountants
-                Mail::to($accountant)->send(new RequestFormWaitingReconciliationMail($accountant,$title));
+                Mail::to($accountant)->send(new RequestFormWaitingReconciliationMail($accountant,$title,$subject));
 
             }
         }
@@ -481,7 +480,8 @@ class NotificationController extends Controller
     }
 
     private function pushNotification($title,$subject,$message){
-        //notification
+        //Disabled Firebase Calls
+     /*   //notification
         try{
             $client=new Client();
             $to=str_replace(' ','',$title);
@@ -507,6 +507,6 @@ class NotificationController extends Controller
 
         }catch (\GuzzleHttp\Exception\GuzzleException $e){
             //Log information
-        }
+        }*/
     }
 }
