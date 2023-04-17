@@ -26,6 +26,11 @@ Route::group(['prefix'=>'1.0.0'],function (){
     Route::get("/projects/create",[
         ProjectController::class,'create'
     ]);
+    Route::post('reports/generate', [
+        "uses" => "App\Http\Controllers\ReportController@generate",
+        'roles' => ['accountant', 'management', 'administrator']
+    ]);
+
 
     Route::post("/upload",[
         "uses" => "App\Http\Controllers\AppController@uploadFile",
