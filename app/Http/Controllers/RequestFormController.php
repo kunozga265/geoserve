@@ -58,7 +58,18 @@ class RequestFormController extends Controller
         $awaitingInitiationCount=0;
         $awaitingReconciliationCount=0;
 
-        if($user->hasRole('management')){
+        //Contracts Manager
+        if($user->hasRole('management') && $user->hasRole('employee')) {
+            $toApproveAsManager=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
+            $toApproveAsEmployee=RequestForm::where('approvalStatus',0)->where('stagesApprovalPosition',$user->position->id)->where('stagesApprovalStatus',0)->orderBy('dateRequested','desc')->get();
+            $toApprove = $toApproveAsManager->merge($toApproveAsEmployee);
+
+            $awaitingApprovalCount=$toApprove->count();
+
+            $dashboardReports=ReportResource::collection($reports);
+        }
+        //Normal Manager
+        else if($user->hasRole('management')){
             $toApprove=RequestForm::where('approvalStatus',0)->where('stagesApprovalStatus',1)->where('user_id','!=',$user->id)->orderBy('dateRequested','desc')->get();
             $awaitingApprovalCount=$toApprove->count();
 
