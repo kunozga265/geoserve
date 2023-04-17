@@ -132,8 +132,8 @@ class UserController extends Controller
                     $user->roles()->attach($accountantRole);
                 }
 
-                //If position is an accountant
-                if($user->position->id == 1 || $user->position->id == 7){
+                //If position is a manager
+                if($user->position->id == 1 /*|| $user->position->id == 7*/){
                     $user->roles()->detach();
                     $managementRole=Role::where('name','management')->first();
                     $user->roles()->attach($managementRole);
@@ -194,7 +194,86 @@ class UserController extends Controller
                 return response()->json(['message' => 'User Discarded']);
             }else{
                 //Web Response
-                return Redirect::route('users')->with('success','User Discarded');
+                return Redirect::back()->with('success','User Discarded');
+            }
+
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','User not found');
+            }
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     */
+    public function makeManager(Request $request, $id)
+    {
+        $user=User::find($id);
+
+        if (is_object($user)){
+
+            $managementRole=Role::where('name','management')->first();
+            $user->roles()->attach($managementRole);
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User can act as a manager']);
+            }else{
+                //Web Response
+                return Redirect::back()->with('success','User can act as a manager');
+            }
+
+        }else {
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User not found'], 404);
+            }else{
+                //Web Response
+                return Redirect::back()->with('error','User not found');
+            }
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     */
+    public function revokeManager(Request $request, $id)
+    {
+        $user=User::find($id);
+
+        if (is_object($user)){
+
+            //reject if user is a superuser
+            if ($id == 1){
+                if ((new AppController())->isApi($request)) {
+                    //API Response
+                    return response()->json(['message' => 'Cannot revoke this user']);
+                }else{
+                    //Web Response
+                    return Redirect::back()->with('error','Cannot revoke this user');
+                }
+            }
+
+            $managementRole=Role::where('name','management')->first();
+            $user->roles()->detach($managementRole);
+
+            if ((new AppController())->isApi($request)) {
+                //API Response
+                return response()->json(['message' => 'User can no longer act as a manager']);
+            }else{
+                //Web Response
+                return Redirect::back()->with('success','User can no longer act as a manager');
             }
 
         }else {
