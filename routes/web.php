@@ -72,6 +72,16 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['management']
         ])->name('users.discard');
 
+        Route::post('/make-manager/{id}', [
+            "uses" => "App\Http\Controllers\UserController@makeManager",
+            'roles' =>['management']
+        ])->name('users.make-manager');
+
+        Route::post('/revoke-manager/{id}', [
+            "uses" => "App\Http\Controllers\UserController@revokeManager",
+            'roles' =>['management']
+        ])->name('users.revoke-manager');
+
     });
 
     Route::group(['prefix'=>'projects'],function(){
@@ -258,6 +268,22 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             "uses" => "App\Http\Controllers\NotificationController@index",
             'roles' => ['employee', 'management']
         ])->name('notifications');
+    });
+
+    Route::group(['prefix'=>'reports'],function() {
+
+        Route::get('/', [
+            "uses" => "App\Http\Controllers\ReportController@index",
+            'roles' => ['employee', 'management']
+//            'roles' => ['accountant', 'management', 'administrator']
+        ])->name('reports');
+
+        Route::get('/generate', [
+            "uses" => "App\Http\Controllers\ReportController@generate",
+            'roles' => ['employee', 'management']
+//            'roles' => ['accountant', 'management', 'administrator']
+        ])->name('reports.generate');
+
     });
 
 });
