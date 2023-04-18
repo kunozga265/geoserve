@@ -12,15 +12,17 @@ class ProjectNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
     public $_subject;
+    public $project;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($_subject)
+    public function __construct($_subject,$project)
     {
         $this->_subject=$_subject;
+        $this->project=$project;
     }
 
     /**

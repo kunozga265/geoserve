@@ -110,7 +110,7 @@ class NotificationController extends Controller
             }
 
             //Send email to managers
-            Mail::to($managers)->send(new UserNewMail($subject));
+            Mail::to($managers)->send(new UserNewMail($object, $subject));
 
         }elseif ($type == "PROJECT_NEW"){
             //project is the object
@@ -132,7 +132,7 @@ class NotificationController extends Controller
             }
 
             //Send email to managers
-            Mail::to($managers)->send(new ProjectNewMail($object));
+            Mail::to($managers)->send(new ProjectNewMail($subject,$object));
 
         }elseif ($type == "VEHICLE_NEW"){
             $message="A new vehicle with registration number: $object->vehicleRegistrationNumber has been registered into the system. Please confirm its details and verify it.";
@@ -153,7 +153,7 @@ class NotificationController extends Controller
             }
 
             //Send email to managers
-            Mail::to($managers)->send(new VehicleNewMail($object));
+            Mail::to($managers)->send(new VehicleNewMail($subject,$object));
 
         }elseif ($type == "REQUEST_FORM_PENDING"){
             //object is the request

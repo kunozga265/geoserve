@@ -12,15 +12,17 @@ class UserNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
     public $_subject;
+    public $user;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($_subject)
+    public function __construct($user, $_subject)
     {
         $this->_subject=$_subject;
+        $this->user = $user;
     }
 
     /**

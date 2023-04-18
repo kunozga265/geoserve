@@ -12,15 +12,17 @@ class VehicleNewMail extends Mailable implements ShouldQueue, ShouldBeUnique
 {
     use Queueable, SerializesModels;
     public $_subject;
+    public $vehicle;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($_subject)
+    public function __construct($_subject,$vehicle)
     {
         $this->_subject=$_subject;
+        $this->vehicle=$vehicle;
     }
 
     /**
