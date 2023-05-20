@@ -508,6 +508,7 @@ class RequestFormController extends Controller
             $request->validate([
                 'vehicleId'             =>  ['required'],
                 'driverName'            =>  ['required'],
+                'fuelVehicleMileage'    =>  ['required'],
                 'fuelRequestedLitres'   =>  ['required'],
                 'fuelRequestedMoney'    =>  ['required'],
                 'purpose'               =>  ['required'],
@@ -544,10 +545,10 @@ class RequestFormController extends Controller
 
                 //Vehicle Details
                 'vehicle_id'                    =>  $request->vehicleId,
-                'mileage'                       =>  $vehicle->mileage,
-                'lastRefillDate'                =>  $vehicle->lastRefillDate,
-                'lastRefillFuelReceived'        =>  $vehicle->lastRefillFuelReceived,
-                'lastRefillMileageCovered'      =>  $vehicle->lastRefillMileageCovered,
+                'mileage'                       =>  $request->fuelVehicleMileage,
+                'lastRefillDate'                =>  $request->lastRefillDate,
+                'lastRefillFuelReceived'        =>  $request->lastRefillFuelReceived,
+                'lastRefillMileageCovered'      =>  $request->lastRefillMileageCovered,
 
                 //Requested by
                 'user_id'                       =>  $user->id,
@@ -1489,6 +1490,8 @@ class RequestFormController extends Controller
                 //API Response
                 return response()->json(['message' => "Request form not found"], 404);
             }else{
+
+
                 //Web Response
                 return Redirect::route('dashboard')->with('error','Request form not found');
             }
