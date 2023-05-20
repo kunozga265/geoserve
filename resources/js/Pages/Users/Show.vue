@@ -23,8 +23,6 @@
 
         <template #actions>
             <primary-button v-if="checkRole(user.data,'unverified') && checkRole($page.props.auth.data,'management')" @click.native="verifyDialog=true" >Verify</primary-button>
-            <primary-button v-if="!checkRole(user.data,'management') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="makeManagerDialog=true" >Give Manager Role</primary-button>
-            <danger-button v-if="checkRole(user.data,'management') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="revokeManagerDialog=true" >Revoke Manager Role</danger-button>
             <danger-button v-if="checkRole(user.data,'unverified') && checkRole($page.props.auth.data,'management')" @click.native="discardDialog=true">Discard</danger-button>
             <danger-button v-if="!checkRole(user.data,'unverified') && !checkRole(user.data,'disabled') && checkRole($page.props.auth.data,'management')" @click.native="disableDialog=true">Disable</danger-button>
         </template>
@@ -103,21 +101,22 @@
             </template>
         </dialog-modal>
 
-        <dialog-modal :show="makeManagerDialog" @close="makeManagerDialog=false">
+        <dialog-modal :show="giveRoleDialog" @close="giveRoleDialog=false">
             <template #title>
-                Give User Manager Role
+                Give User {{ role }} Role
             </template>
 
             <template #content>
-                Are you sure you want to make this user {{user.data.firstName}} {{user.data.middleName}} {{user.data.lastName}} act as a manager?
+                Are you sure you want to make this user {{user.data.firstName}} {{user.data.middleName}} {{user.data.lastName}} act as
+                {{ role }}?
             </template>
 
             <template #footer>
-                <secondary-button @click.native="makeManagerDialog=false">
+                <secondary-button @click.native="giveRoleDialog=false">
                     Cancel
                 </secondary-button>
 
-                <primary-button class="ml-2" @click.native="makeManager" :disabled="form.processing">
+                <primary-button class="ml-2" @click.native="giveRole" :disabled="form.processing">
                     <svg v-show="form.processing" role="status" class="inline w-4 h-4 mr-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
                         <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
@@ -127,22 +126,23 @@
             </template>
         </dialog-modal>
 
-        <dialog-modal :show="revokeManagerDialog" @close="revokeManagerDialog=false">
+        <dialog-modal :show="revokeRoleDialog" @close="revokeRoleDialog=false">
             <template #title>
-                Revoke Manager Role from User
+                Revoke {{ role }} Role from User
             </template>
 
             <template #content>
-                Are you sure you want to revoke {{user.data.firstName}} {{user.data.middleName}} {{user.data.lastName}} of the manager role?
-                This user will no longer act as a manager in the system.
+                Are you sure you want to revoke {{user.data.firstName}} {{user.data.middleName}} {{user.data.lastName}} of the
+                {{ role }} role?
+                This user will no longer act as a {{ role }} in the system.
             </template>
 
             <template #footer>
-                <secondary-button @click.native="revokeManagerDialog=false">
+                <secondary-button @click.native="revokeRoleDialog=false">
                     Cancel
                 </secondary-button>
 
-                <danger-button class="ml-2" @click.native="revokeManager" :disabled="form.processing">
+                <danger-button class="ml-2" @click.native="revokeRole" :disabled="form.processing">
                     <svg v-show="form.processing" role="status" class="inline w-4 h-4 mr-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
                         <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
@@ -155,6 +155,32 @@
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+                <div  v-if="!checkRole(user.data,'unverified') && checkRole($page.props.auth.data,'management')" class="page-section">
+                    <div class="page-section-header">
+                        <div class="page-section-title">
+                            Manage User Roles
+                        </div>
+                    </div>
+                    <div class="page-section-content">
+                        <div class="card profile">
+                           <div>
+                               <!--Management-->
+                               <primary-button class="m-2" v-if="!checkRole(user.data,'management') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="giveRolePrompt('management')" >Give Manager Role</primary-button>
+                               <danger-button class="m-2" v-if="checkRole(user.data,'management') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="revokeRolePrompt('management')" >Revoke Manager Role</danger-button>
+
+                               <!--Accountant-->
+                               <primary-button class="m-2" v-if="!checkRole(user.data,'accountant') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="giveRolePrompt('accountant')" >Give Accountant Role</primary-button>
+                               <danger-button class="m-2" v-if="checkRole(user.data,'accountant') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="revokeRolePrompt('accountant')" >Revoke Accountant Role</danger-button>
+
+                               <!--Administration-->
+                               <primary-button class="m-2" v-if="!checkRole(user.data,'administrator') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="giveRolePrompt('administrator')" >Give Administrator Role</primary-button>
+                               <danger-button class="m-2" v-if="checkRole(user.data,'administrator') && checkRole($page.props.auth.data,'management') && !checkRole(user.data,'unverified') && !checkRole(user.data,'disabled')" @click.native="revokeRolePrompt('administrator')" >Revoke Administrator Role</danger-button>
+
+                           </div>
+
+                        </div>
+                    </div>
+                </div>
                 <div class="page-section">
                     <div class="page-section-header">
                         <div class="page-section-title">
@@ -420,8 +446,9 @@
               verifyDialog:false,
               discardDialog:false,
               disableDialog:false,
-              makeManagerDialog:false,
-              revokeManagerDialog:false,
+              giveRoleDialog:false,
+              revokeRoleDialog:false,
+              role:null,
               chartOptions:{
                   plugins: {
                       tooltip: {
@@ -503,16 +530,24 @@
                       onSuccess: () => this.disableDialog=false,
                   })
           },
-          makeManager(){
+          giveRolePrompt(role){
+              this.role=role
+              this.giveRoleDialog=true
+          },
+          revokeRolePrompt(role){
+              this.role=role
+              this.revokeRoleDialog=true
+          },
+          giveRole(){
               this.form
-                  .post(this.route('users.make-manager',{'id':this.user.data.id}),{
-                      onSuccess: () => this.makeManagerDialog=false,
+                  .post(this.route('users.give-role',{'id':this.user.data.id,'role':this.role}),{
+                      onSuccess: () => this.giveRoleDialog=false,
                   })
           },
-          revokeManager(){
+          revokeRole(){
               this.form
-                  .post(this.route('users.revoke-manager',{'id':this.user.data.id}),{
-                      onSuccess: () => this.revokeManagerDialog=false,
+                  .post(this.route('users.revoke-role',{'id':this.user.data.id,'role':this.role}),{
+                      onSuccess: () => this.revokeRoleDialog=false,
                   })
           },
       }

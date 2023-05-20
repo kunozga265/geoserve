@@ -72,15 +72,15 @@ Route::group(['middleware'=>['auth:sanctum', 'verified','roles']],function (){
             'roles' =>['management']
         ])->name('users.discard');
 
-        Route::post('/make-manager/{id}', [
-            "uses" => "App\Http\Controllers\UserController@makeManager",
+        Route::post('/give-role/{id}/{role}', [
+            "uses" => "App\Http\Controllers\UserController@giveRole",
             'roles' =>['management']
-        ])->name('users.make-manager');
+        ])->name('users.give-role');
 
-        Route::post('/revoke-manager/{id}', [
-            "uses" => "App\Http\Controllers\UserController@revokeManager",
+        Route::post('/revoke-role/{id}/{role}', [
+            "uses" => "App\Http\Controllers\UserController@revokeRole",
             'roles' =>['management']
-        ])->name('users.revoke-manager');
+        ])->name('users.revoke-role');
 
     });
 

@@ -125,8 +125,8 @@ class UserController extends Controller
                     $user->roles()->attach($administratorRole);
                 }
 
-                //If position is an accountant
-                if ($user->position->id == 3){
+                //If position is finance or human resource make accountant
+                if ($user->position->id == 3 || $user->position->id == 5){
                     //Give this user an accountant role
                     $accountantRole=Role::where('name','accountant')->first();
                     $user->roles()->attach($accountantRole);
@@ -214,21 +214,21 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      */
-    public function makeManager(Request $request, $id)
+    public function giveRole(Request $request, $id, $role)
     {
         $user=User::find($id);
 
         if (is_object($user)){
 
-            $managementRole=Role::where('name','management')->first();
-            $user->roles()->attach($managementRole);
+            $roleObject=Role::where('name',$role)->first();
+            $user->roles()->attach($roleObject);
 
             if ((new AppController())->isApi($request)) {
                 //API Response
-                return response()->json(['message' => 'User can act as a manager']);
+                return response()->json(['message' => "User can act as a $role"]);
             }else{
                 //Web Response
-                return Redirect::back()->with('success','User can act as a manager');
+                return Redirect::back()->with('success',"User can act as a $role");
             }
 
         }else {
@@ -248,7 +248,7 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      */
-    public function revokeManager(Request $request, $id)
+    public function revokeRole(Request $request, $id, $role)
     {
         $user=User::find($id);
 
@@ -265,15 +265,15 @@ class UserController extends Controller
                 }
             }
 
-            $managementRole=Role::where('name','management')->first();
-            $user->roles()->detach($managementRole);
+            $roleObject=Role::where('name',$role)->first();
+            $user->roles()->detach($roleObject);
 
             if ((new AppController())->isApi($request)) {
                 //API Response
-                return response()->json(['message' => 'User can no longer act as a manager']);
+                return response()->json(['message' => "User can no longer act as a $role"]);
             }else{
                 //Web Response
-                return Redirect::back()->with('success','User can no longer act as a manager');
+                return Redirect::back()->with('success',"User can no longer act as a $role");
             }
 
         }else {
