@@ -171,9 +171,9 @@
             @if($requestForm->type=="MATERIALS")
                 <th>Units</th>
             @endif
-            <th>Quantity</th>
-            <th>Unit Cost</th>
-            <th>Total Cost</th>
+            <th style="text-align: right">Quantity</th>
+            <th style="text-align: right">Unit Cost</th>
+            <th style="text-align: right">Total Cost</th>
         </tr>
         </thead>
         <tbody>
@@ -183,11 +183,20 @@
                 @if($requestForm->type=="MATERIALS")
                     <td>{{$info->units ?? ""}}</td>
                 @endif
-                <td>{{number_format($info->quantity,2)}}</td>
-                <td>{{number_format($info->unitCost,2)}}</td>
-                <td>{{number_format($info->totalCost,2)}}</td>
+                <td style="text-align: right">{{number_format($info->quantity,2)}}</td>
+                <td style="text-align: right">{{number_format($info->unitCost,2)}}</td>
+                <td style="text-align: right">{{number_format($info->totalCost,2)}}</td>
             </tr>
         @endforeach
+            <tr>
+                <td style="border: 0"></td>
+                @if($requestForm->type=="MATERIALS")
+                    <td style="border: 0"></td>
+                @endif
+                <td style="text-align: right; border: 0"></td>
+                <td style="text-align: right; font-weight: bolder; border: 0">Total</td>
+                <td style="text-align: right" >{{number_format($requestForm->total,2)}}</td>
+            </tr>
         </tbody>
     </table>
     <p style="font-size: 12px">I accept the advances listed above and I acknowledge that I must return the full amount or account for it on a company expense form within 3 days of returning to Geoserve from this assignment</p>
