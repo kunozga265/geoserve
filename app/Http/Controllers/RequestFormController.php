@@ -1352,7 +1352,7 @@ class RequestFormController extends Controller
 
                 if($requestForm->dateReconciled == null){
 
-                    if($requestForm->type=="FUEL"){
+                 /*   if($requestForm->type=="FUEL"){
 
                         $request->validate([
                             'lastRefillDate'            =>  ['required'],
@@ -1370,7 +1370,7 @@ class RequestFormController extends Controller
                             'lastRefillMileageCovered'  =>  $request->lastRefillMileageCovered,
                         ]);
 
-                    }
+                    }*/
 
                     $requestForm->update([
                         //Should it be set manually?

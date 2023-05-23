@@ -173,11 +173,11 @@
 
                  <div class="mb-4">
                      Are you sure you want to reconcile this request?
-                     <span v-if="request.data.type ==='FUEL'">Please submit the following information and upload receipts;</span>
-                     <span v-else>Please upload receipts;</span>
+<!--                     <span v-if="request.data.type ==='FUEL'">Please submit the following information and upload receipts;</span>-->
+                     <span>Please upload receipts;</span>
                  </div>
                  <jet-validation-errors class="mb-4" />
-                 <div v-if="request.data.type ==='FUEL'">
+<!--                 <div v-if="request.data.type ==='FUEL'">
                      <div class="mb-4">
                          <jet-label for="lastRefillDate" value="Last Refill Date" />
                          <vue-date-time-picker
@@ -194,7 +194,7 @@
                          <jet-label for="lastRefillMileageCovered" value="Last Refill Mileage Covered" />
                          <jet-input id="lastRefillMileageCovered" type="text" class="mt-1 block w-full" v-model="form.lastRefillMileageCovered" autocomplete="geoserve-vehicle-lastRefillMileageCovered"/>
                      </div>
-                 </div>
+                 </div>-->
 
                  <div class="mb-4">
                      <jet-label for="receipt" value="Upload receipt" />
