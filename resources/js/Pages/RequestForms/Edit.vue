@@ -250,10 +250,10 @@
 
                                     <div class="p-2 mb-2" v-if="fuelVehicle">
                                         <jet-label for="fuelVehicleMileage" value="Mileage" />
-                                        <div class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-                                            {{numberWithCommas(fuelVehicle.mileage)}}
-                                        </div>
-<!--                                        <jet-input id="fuelVehicleMileage" type="text" class="block w-full" v-model="fuelVehicleMileage" disabled/>-->
+                                        <!--                                        <div class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                                                                    {{numberWithCommas(fuelVehicle.mileage)}}
+                                                                                </div>-->
+                                        <jet-input id="fuelVehicleMileage" type="text" class="block w-full" v-model="form.fuelVehicleMileage"/>
                                     </div>
 
                                     <div class="p-2 mb-2 md:col-span-2">
@@ -274,10 +274,26 @@
                                         <span v-if="fuelVehicle" class="text-sm text-gray-600">@ K{{numberWithCommas(fuelVehicle.gas.perLitre)}}/Litre</span>
                                     </div>
 
-
                                     <div class="p-2 mb-2 md:col-span-2">
                                         <jet-label for="purpose" value="Purpose" />
                                         <textarea id="purpose" v-model="form.purpose" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required></textarea>
+                                    </div>
+
+                                    <div class="p-2 mb-2 md:col-span-2">
+                                        <jet-label for="lastRefillDate" value="Last Refill Date" />
+                                        <vue-date-time-picker
+                                            color="#1a56db"
+                                            v-model="date"
+                                            :maxDate="today"
+                                        />
+                                    </div>
+                                    <div class="p-2 mb-2">
+                                        <jet-label for="lastRefillFuelReceived" value="Last Refill Fuel Received" />
+                                        <jet-input id="lastRefillFuelReceived" type="text" class="mt-1 block w-full" v-model="form.lastRefillFuelReceived" autocomplete="geoserve-vehicle-lastRefillFuelReceived"/>
+                                    </div>
+                                    <div class="p-2 mb-2">
+                                        <jet-label for="lastRefillMileageCovered" value="Last Refill Mileage Covered" />
+                                        <jet-input id="lastRefillMileageCovered" type="text" class="mt-1 block w-full" v-model="form.lastRefillMileageCovered" autocomplete="geoserve-vehicle-lastRefillMileageCovered"/>
                                     </div>
 
                                 </div>
@@ -342,8 +358,11 @@
                   assessedBy:this.request.data.assessedBy,
                   fuelRequestedLitres:this.request.data.fuelRequestedLitres,
                   // fuelRequestedMoney:this.request.data.fuelRequestedMoney,
+                  fuelVehicleMileage:this.request.data.mileage,
                   purpose:this.request.data.purpose,
                   driverName:this.request.data.driverName,
+                  lastRefillFuelReceived:this.request.data.lastRefillFuelReceived,
+                  lastRefillMileageCovered:this.request.data.lastRefillMileageCovered,
                   information:this.request.data.information,
               }),
               projectIndex:-1,
@@ -369,6 +388,8 @@
               fuelVehicleIndex:-1,
               quotes:[],
               error:'',
+              date:null,
+              today:new Date().toISOString(),
           }
         },
         created(){
@@ -389,6 +410,8 @@
             }
 
             this.quotes=this.getQuotes(this.request.data.quotes)
+
+            this.date=this.request.data.lastRefillDate!==null && this.request.data.lastRefillDate!==0?new Date(this.request.data.lastRefillDate * 1000).toISOString():null
         },
         computed:{
             project(){
@@ -484,6 +507,9 @@
                     return false
                 }
 
+            },
+            lastRefillDate(){
+                return this.date?(new Date(this.date).getTime())/1000:null
             }
         },
         methods:{
@@ -502,7 +528,8 @@
                         total: this.totalCost,
                         quotes: this.quoteFiles,
                         vehicleId: vehicleId,
-                        fuelRequestedMoney:this.fuelRequestedMoney
+                        fuelRequestedMoney:this.fuelRequestedMoney,
+                        lastRefillDate:this.lastRefillDate,
                     }))
                     .post(this.route('request-forms.update',{id:this.request.data.id}))
             },
