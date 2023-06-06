@@ -377,6 +377,7 @@
                           "unitCost":0,
                           "totalCost":0,
                       },
+
                   ],
               }),
               projectIndex:-1,
@@ -482,23 +483,32 @@
                     }else if(this.form.fuelVehicleMileage==='' || this.form.fuelVehicleMileage.length===0) {
                         this.error = "Enter vehicle's mileage"
                         return false
+                    }else if(isNaN(this.form.fuelVehicleMileage)) {
+                        this.error = "Mileage should be a number without commas and spaces"
+                        return false
                     }else if(this.form.driverName==='' || this.form.driverName.length===0) {
                         this.error = "Enter a driver's name"
                         return false
-                    }else if(this.form.fuelRequestedLitres==='' || this.form.fuelRequestedLitres.length===0) {
+                    }else if(this.form.fuelRequestedLitres==='' || this.form.fuelRequestedLitres==0 || this.form.fuelRequestedLitres.length===0) {
                         this.error = "Enter fuel requested (in litres)"
                         return false
                     }else if(isNaN(this.form.fuelRequestedLitres)) {
-                        this.error = "Fuel requested (in litres) should be a number"
+                        this.error = "Fuel requested (in litres) should be a number without commas and spaces"
                         return false
                     }else if(this.fuelRequestedMoney===0) {
-                        this.error = "Enter fuel requested (money equivalent)"
+                        this.error = "Fuel Requested (money equivalent) cannot be 0"
                         return false
                    /* }else if(isNaN(this.form.fuelRequestedMoney)) {
                         this.error = "Fuel requested (money equivalent) should be a number"
                         return false*/
                     }else if(this.form.purpose==='' || this.form.purpose.length===0) {
                         this.error = "Enter the purpose"
+                        return false
+                    }else if(isNaN(this.form.lastRefillFuelReceived)) {
+                        this.error = "Last Refill Fuel Received should be a number without commas and spaces"
+                        return false
+                    }else if(isNaN(this.form.lastRefillMileageCovered)) {
+                        this.error = "Last Refill Mileage Covered should be a number without commas and spaces"
                         return false
                     }else
                         return true
@@ -511,7 +521,7 @@
             },
             lastRefillDate(){
                 return this.date?(new Date(this.date).getTime())/1000:null
-            }
+            },
         },
         methods:{
             submit() {
@@ -534,6 +544,10 @@
                     }))
                     .post(this.route('request-forms.store'))
             },
+           /* filterNonNumeric() {
+                // Replace non-numeric characters with an empty string
+                this.numericInput = this.numericInput.replace(/[^0-9]/g, "");
+            },*/
             addRecord(){
                 this.form.information.push({
                     "details":'',
