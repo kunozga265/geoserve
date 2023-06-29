@@ -221,8 +221,7 @@ class NotificationController extends Controller
             ]);
 
             //Send a push notification to the app for the user
-            $name=$object->firstName.$object->lastName;
-            $this->pushNotification($name,"Account Verified",$message);
+            $this->pushNotification($object->id,"Account Verified",$message);
 
             Mail::to($object)->send(new UserVerifiedMail());
 
@@ -238,8 +237,7 @@ class NotificationController extends Controller
             ]);
 
             //Send a push notification to the app for the user
-            $name=$object->firstName.$object->lastName;
-            $this->pushNotification($name,"Account Disabled",$message);
+            $this->pushNotification($object->id,"Account Disabled",$message);
 
             Mail::to($object)->send(new UserDisabledMail());
 
@@ -265,12 +263,12 @@ class NotificationController extends Controller
                     'user_id' => $employee->id,
                 ]);
 
-                //Send a push notification to the app for the user
-                $this->pushNotification($employee->position->title,$subject,$message);
-
                 //Send email to employees who can approve
                 Mail::to($employee)->send(new RequestFormPendingApprovalMail($employee, $message,$subject));
             }
+            //Send a push notification to the app for the user
+            $this->pushNotification($position->title,$subject,$message);
+
         }elseif($type=="REQUEST_FORM_RESUBMITTED"){
             //Find the next person(s) to approve
             $position=Position::find($object->stagesApprovalPosition);
@@ -293,12 +291,13 @@ class NotificationController extends Controller
                     'user_id' => $employee->id,
                 ]);
 
-                //Send a push notification to the app for the user
-                $this->pushNotification($employee->position->title,$subject,$message);
-
                 //Send email to managers
                 Mail::to($employee)->send(new RequestFormPendingApprovalMail($employee, $message,$subject));
             }
+
+            //Send a push notification to the app for the user
+            $this->pushNotification($position->title,$subject,$message);
+
         }elseif($type=="INITIATED"){
             $message="The request has been initiated by the Accounts Department.";
             $subject= $this->getRequestTitle($object->type,$object->code). " Initiated";
@@ -314,9 +313,9 @@ class NotificationController extends Controller
             ]);
 
             //Send a push notification to the app for the user
-            $name=$object->firstName." ".$object->lastName;
-            $this->pushNotification($name,$subject,$message);
+            $this->pushNotification($object->id,$subject,$message);
 
+            $name=$object->firstName." ".$object->lastName;
             Mail::to($object->user)->send(new RequestFormInitiatedMail($name,$subject));
 
         }elseif($type=="RECONCILED") {
@@ -334,9 +333,9 @@ class NotificationController extends Controller
             ]);
 
             //Send a push notification to the app for the user
-            $name=$object->firstName." ".$object->lastName;
-            $this->pushNotification($name,$subject,$message);
+            $this->pushNotification($object->id,$subject,$message);
 
+            $name=$object->firstName." ".$object->lastName;
             Mail::to($object->user)->send(new RequestFormReconciledMail($name,$subject));
 
         }
@@ -359,8 +358,7 @@ class NotificationController extends Controller
         ]);
 
         //Send a push notification to the app for the user
-        $name=$requestForm->firstName." ".$requestForm->lastName;
-        $this->pushNotification($name,$subject,$message);
+        $this->pushNotification($requestForm->user->id,$subject,$message);
 
         //Send email
         Mail::to($requestForm->user)->send(new RequestFormApprovedMail($requestForm,$approvedBy,$subject));
@@ -384,8 +382,7 @@ class NotificationController extends Controller
         ]);
 
         //Send a push notification to the app for the user
-        $name=$requestForm->firstName." ".$requestForm->lastName;
-        $this->pushNotification($name,$subject,$message);
+        $this->pushNotification($requestForm->user->id,$subject,$message);
 
         //Send email
         Mail::to($requestForm->user)->send(new RequestFormDeniedMail($requestForm->user,$message,$subject));
@@ -395,10 +392,10 @@ class NotificationController extends Controller
     {
         $role=Role::where('name','accountant')->first();
         $accountants=$role->users;
+        $positionTitle = $requestForm->user->position->title;
 
         if($type=="WAITING_INITIATE"){
             $name= $requestForm->user->firstName. " " .$requestForm->user->lastName;
-            $positionTitle = $requestForm->user->position->title;
             $message="$name ($positionTitle) has submitted a request and it has been approved. May you please attend to it as soon as possible.";
             $subject= $this->getRequestTitle($requestForm->type,$requestForm->code). " Waiting Initiation";
 
@@ -414,13 +411,12 @@ class NotificationController extends Controller
                     'user_id' => $accountant->id,
                 ]);
 
-                //Send a push notification to the app for the accountant
-                $this->pushNotification($accountant->position->title,$subject,$message);
-
                 //Send email to accountants
                 Mail::to($accountant)->send(new RequestFormWaitingInitiationMail($accountant,$message,$subject));
-
             }
+            //Send a push notification to the app for the accountant
+            $this->pushNotification($positionTitle,$subject,$message);
+
         }elseif($type=="WAITING_RECONCILE"){
             $title= $this->getRequestTitle($requestForm->type,$requestForm->code);
             $message="$title has been initiated. Please ensure all required information has been submitted to reconcile this request.";
@@ -438,13 +434,11 @@ class NotificationController extends Controller
                     'user_id' => $accountant->id,
                 ]);
 
-                //Send a push notification to the app for the accountant
-                $this->pushNotification($accountant->position->title,$subject,$message);
-
                 //Send email to accountants
                 Mail::to($accountant)->send(new RequestFormWaitingReconciliationMail($accountant,$title,$subject));
-
             }
+            //Send a push notification to the app for the accountant
+            $this->pushNotification($positionTitle,$subject,$message);
         }
     }
 
@@ -480,8 +474,7 @@ class NotificationController extends Controller
     }
 
     private function pushNotification($title,$subject,$message){
-        //Disabled Firebase Calls
-     /*   //notification
+      //notification
         try{
             $client=new Client();
             $to=str_replace(' ','',$title);
@@ -507,6 +500,6 @@ class NotificationController extends Controller
 
         }catch (\GuzzleHttp\Exception\GuzzleException $e){
             //Log information
-        }*/
+        }
     }
 }
