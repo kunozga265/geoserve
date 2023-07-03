@@ -88,6 +88,7 @@ class NotificationController extends Controller
     {
         $role=Role::where('name','management')->first();
         $managers=$role->users;
+        $positionTitle = "Managing Director";
 
         if ($type == "USER_NEW"){
             //object is user
@@ -104,10 +105,9 @@ class NotificationController extends Controller
                     'type'      =>  $type,
                     'user_id'   =>  $manager->id,
                 ]);
-
-                //Send a push notification to the app for the manager
-                $this->pushNotification($manager->position->title,$subject,$message);
             }
+            //Send a push notification to the app for the manager
+            $this->pushNotification($positionTitle,$subject,$message);
 
             //Send email to managers
             Mail::to($managers)->send(new UserNewMail($object, $subject));
@@ -126,10 +126,10 @@ class NotificationController extends Controller
                     'type'      =>  $type,
                     'user_id'   =>  $manager->id,
                 ]);
-
-                //Send a push notification to the app for the manager
-                $this->pushNotification($manager->position->title,$subject,$message);
             }
+
+            //Send a push notification to the app for the manager
+            $this->pushNotification($positionTitle,$subject,$message);
 
             //Send email to managers
             Mail::to($managers)->send(new ProjectNewMail($subject,$object));
@@ -147,10 +147,9 @@ class NotificationController extends Controller
                     'type'      =>  $type,
                     'user_id'   =>  $manager->id,
                 ]);
-
-                //Send a push notification to the app for the manager
-                $this->pushNotification($manager->position->title,$subject,$message);
             }
+            //Send a push notification to the app for the manager
+            $this->pushNotification($positionTitle,$subject,$message);
 
             //Send email to managers
             Mail::to($managers)->send(new VehicleNewMail($subject,$object));
@@ -163,23 +162,24 @@ class NotificationController extends Controller
             $subject=$this->getRequestTitle($object->type,$object->code)." Pending Approval";
 
             //Create a notification for managers
-            foreach ($managers as $manager){
+            foreach ($managers as $manager) {
                 Notification::create([
-                    'contents'  =>  json_encode([
-                        'message'   => $message,
-                        'type'      => $object->type,
+                    'contents' => json_encode([
+                        'message' => $message,
+                        'type' => $object->type,
                         'requestId' => $object->id
                     ]),
-                    'type'      =>  $type,
-                    'user_id'   =>  $manager->id,
+                    'type' => $type,
+                    'user_id' => $manager->id,
                 ]);
-
-                //Send a push notification to the app for the manager
-                $this->pushNotification($manager->position->title,$subject,$message);
 
                 //Send email to manager
                 Mail::to($manager)->send(new RequestFormPendingApprovalMail($manager,$message,$subject));
             }
+
+            //Send a push notification to the app for the manager
+            $this->pushNotification($positionTitle,$subject,$message);
+
         }elseif ($type == "REQUEST_FORM_RESUBMITTED"){
             $name= $object->user->firstName. " " .$object->user->lastName;
             $positionTitle = $object->user->position->title;
@@ -198,12 +198,12 @@ class NotificationController extends Controller
                     'user_id'   =>  $manager->id,
                 ]);
 
-                //Send a push notification to the app for the manager
-                $this->pushNotification($manager->position->title,$subject,$message);
-
                 //Send email to manager
                 Mail::to($manager)->send(new RequestFormPendingApprovalMail($manager,$message,$subject));
             }
+
+            //Send a push notification to the app for the manager
+            $this->pushNotification($positionTitle,$subject,$message);
         }
     }
 
@@ -266,6 +266,7 @@ class NotificationController extends Controller
                 //Send email to employees who can approve
                 Mail::to($employee)->send(new RequestFormPendingApprovalMail($employee, $message,$subject));
             }
+
             //Send a push notification to the app for the user
             $this->pushNotification($position->title,$subject,$message);
 
@@ -297,6 +298,7 @@ class NotificationController extends Controller
 
             //Send a push notification to the app for the user
             $this->pushNotification($position->title,$subject,$message);
+
 
         }elseif($type=="INITIATED"){
             $message="The request has been initiated by the Accounts Department.";
@@ -455,20 +457,17 @@ class NotificationController extends Controller
         }
     }
 
-    public function getRequestTitle($type,$code){
+    public function getRequestTitle($type,$code): string
+    {
         switch ($type){
             case "CASH":
                 return "Cash Request [$code]";
-                break;
             case "MATERIALS":
                 return "Materials Request [$code]";
-                break;
             case "VEHICLE_MAINTENANCE":
                 return "Vehicle Maintenance Request [$code]";
-                break;
             default:
                 return "Fuel Request [$code]";
-                break;
 
         }
     }
